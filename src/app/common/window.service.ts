@@ -8,6 +8,6 @@ export const WindowToken = new InjectionToken<Window>('Window');
 /**
  * Window提供器
  */
-export function windowProvider() {
+export function windowService() {
     return window;
 }

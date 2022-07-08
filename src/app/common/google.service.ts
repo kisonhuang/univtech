@@ -1,6 +1,6 @@
 import {Inject, Injectable} from '@angular/core';
 
-import {WindowToken} from './window.provider';
+import {WindowToken} from './window.service';
 import {environment} from '../../environments/environment';
 
 /**
