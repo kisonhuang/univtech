@@ -23,7 +23,7 @@ export class GoogleService {
      */
     constructor(@Inject(WindowToken) private window: Window) {
         // 调用谷歌分析的自动创建服务
-        this.ga('create', environment.gaId, 'auto');
+        this.callGaService('create', environment.gaId, 'auto');
     }
 
     /**
@@ -32,7 +32,7 @@ export class GoogleService {
      * @param url 页面路径
      */
     locationChanged(url: string) {
-        this.sendPage(url);
+        this.sendPageview(url);
     }
 
     /**
@@ -40,14 +40,14 @@ export class GoogleService {
      *
      * @param url 页面路径
      */
-    sendPage(url: string) {
+    sendPageview(url: string) {
         // 页面路径没有改变，不重新发送
         if (url === this.previousUrl) {
             return;
         }
         this.previousUrl = url;
-        this.ga('set', 'page', '/' + url);
-        this.ga('send', 'pageview');
+        this.callGaService('set', 'page', '/' + url);
+        this.callGaService('send', 'pageview');
     }
 
     /**
@@ -59,7 +59,7 @@ export class GoogleService {
      * @param value 标签值
      */
     sendEvent(source: string, action: string, label?: string, value?: number) {
-        this.ga('send', 'event', source, action, label, value);
+        this.callGaService('send', 'event', source, action, label, value);
     }
 
     /**
@@ -67,8 +67,8 @@ export class GoogleService {
      *
      * @param args 服务参数
      */
-    ga(...args: any[]) {
-        const gaFn = (this.window as any).ga;
+    callGaService(...args: any[]) {
+        const gaFn = (this.window as any).callGaService;
         if (gaFn) {
             gaFn(...args);
         }
