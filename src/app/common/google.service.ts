@@ -14,16 +14,16 @@ import {environment} from '../../environments/environment';
 export class GoogleService {
 
     // 上一个页面的路径
-    private previousUrl!: string;
+    private previousUrl?: string;
 
     /**
-     * 构造函数，创建GaService
+     * 构造函数，创建调用谷歌分析的服务。
      *
      * @param window Window对象
      */
     constructor(@Inject(WindowToken) private window: Window) {
         // 调用谷歌分析的自动创建服务
-        this.callGaService('create', environment.gaId, 'auto');
+        this.callGaFunc('create', environment.gaId, 'auto');
     }
 
     /**
@@ -46,8 +46,8 @@ export class GoogleService {
             return;
         }
         this.previousUrl = url;
-        this.callGaService('set', 'page', '/' + url);
-        this.callGaService('send', 'pageview');
+        this.callGaFunc('set', 'page', '/' + url);
+        this.callGaFunc('send', 'pageview');
     }
 
     /**
@@ -59,7 +59,7 @@ export class GoogleService {
      * @param value 标签值
      */
     sendEvent(source: string, action: string, label?: string, value?: number) {
-        this.callGaService('send', 'event', source, action, label, value);
+        this.callGaFunc('send', 'event', source, action, label, value);
     }
 
     /**
@@ -67,10 +67,10 @@ export class GoogleService {
      *
      * @param args 服务参数
      */
-    callGaService(...args: any[]) {
-        const gaFn = (this.window as any).callGaService;
-        if (gaFn) {
-            gaFn(...args);
+    callGaFunc(...args: any[]) {
+        const gaFunc = (this.window as any).callGaFunc;
+        if (gaFunc) {
+            gaFunc(...args);
         }
     }
 

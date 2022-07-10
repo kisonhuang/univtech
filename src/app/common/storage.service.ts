@@ -29,7 +29,8 @@ export const StorageProviders: StaticProvider[] = [
 ];
 
 /**
- * Storage用于访问特定领域的会话或本地存储。NoopStorage是一个什么都不做的Storage。
+ * Storage：用于访问特定领域的会话或本地存储。<br>
+ * NoopStorage：什么都不做的存储对象。
  */
 export class NoopStorage implements Storage {
 
