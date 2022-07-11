@@ -3,14 +3,19 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { WindowToken, windowProvider } from './base/window.service';
+import { ThemeComponent } from './component/theme/theme.component';
+import {MatIconModule} from "@angular/material/icon";
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    ThemeComponent
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    MatIconModule
   ],
   providers: [],
   bootstrap: [AppComponent]
