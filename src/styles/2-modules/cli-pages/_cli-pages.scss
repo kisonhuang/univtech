@@ -1,9 +1,13 @@
 .cli-name {
-  font-weight: bold;
+    font-weight: bold;
 
-  .kwd { color: inherit; }  /* override code format */
+    .kwd {
+        color: inherit;
+    }
+
+    /* override code format */
 }
 
 .cli-option-syntax {
-  white-space: pre;
+    white-space: pre;
 }

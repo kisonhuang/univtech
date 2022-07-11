@@ -3,7 +3,7 @@
 @use '2-modules/theme' as module-themes;
 
 @mixin theme($theme) {
-  @include typography-theme.theme($theme);
-  @include layout-themes.theme($theme);
-  @include module-themes.theme($theme);
+    @include typography-theme.theme($theme);
+    @include layout-themes.theme($theme);
+    @include module-themes.theme($theme);
 }

@@ -1,5 +1,5 @@
 // TYPOGRAPHY
-$main-font: "Roboto","Helvetica Neue Light","Helvetica Neue",Helvetica,Arial,"Lucida Grande",sans-serif;
+$main-font: "Roboto", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
 $code-font: "Roboto Mono", monospace;
 
 // Z-LAYER
@@ -69,71 +69,71 @@ $focus-outline-ondark: rgba($white, 0.8);
 $focus-outline-onlight: $accentblue;
 
 // GRADIENTS
-$bluegradient: linear-gradient(145deg,$blue-900,$blue-400);
-$redgradient: linear-gradient(145deg,$darkred,$brightred);
+$bluegradient: linear-gradient(145deg, $blue-900, $blue-400);
+$redgradient: linear-gradient(145deg, $darkred, $brightred);
 
 // API LABEL COLOR AND SYMBOLS MAP
 $api-symbols: (
-  all: (
-    content: ' ',
-    background: $white
-  ),
-  class: (
-    content: 'C',
-    background: $blue-500
-  ),
-  const: (
-    content: 'K',
-    background: $mediumgray
-  ),
-  decorator: (
-    content: '@',
-    background: $blue-800
-  ),
-  directive: (
-    content: 'D',
-    background: $pink-600
-  ),
-  enum: (
-    content: 'E',
-    background: $amber-700
-  ),
-  function: (
-    content: 'F',
-    background: $green-500
-  ),
-  interface: (
-    content: 'I',
-    background: $teal-500
-  ),
-  let: (
-    content: 'K',
-    background: $mediumgray
-  ),
-  ngmodule: (
-    content: 'M',
-    background: $darkorange
-  ),
-  package: (
-    content: 'Pk',
-    background: $purple-600
-  ),
-  pipe: (
-    content: 'P',
-    background: $blue-grey-600
-  ),
-  element: (
-    content: 'El',
-    background: $amber-200
-  ),
-  type-alias: (
-    content: 'T',
-    background: $light-green-600
-  ),
-  var: (
-    content: 'K',
-    background: $mediumgray
-  ),
+    all: (
+        content: ' ',
+        background: $white
+    ),
+    class: (
+        content: 'C',
+        background: $blue-500
+    ),
+    const: (
+        content: 'K',
+        background: $mediumgray
+    ),
+    decorator: (
+        content: '@',
+        background: $blue-800
+    ),
+    directive: (
+        content: 'D',
+        background: $pink-600
+    ),
+    enum: (
+        content: 'E',
+        background: $amber-700
+    ),
+    function: (
+        content: 'F',
+        background: $green-500
+    ),
+    interface: (
+        content: 'I',
+        background: $teal-500
+    ),
+    let: (
+        content: 'K',
+        background: $mediumgray
+    ),
+    ngmodule: (
+        content: 'M',
+        background: $darkorange
+    ),
+    package: (
+        content: 'Pk',
+        background: $purple-600
+    ),
+    pipe: (
+        content: 'P',
+        background: $blue-grey-600
+    ),
+    element: (
+        content: 'El',
+        background: $amber-200
+    ),
+    type-alias: (
+        content: 'T',
+        background: $light-green-600
+    ),
+    var: (
+        content: 'K',
+        background: $mediumgray
+    ),
 );
 
 // OTHER

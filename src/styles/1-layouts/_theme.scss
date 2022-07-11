@@ -6,10 +6,10 @@
 @use 'top-menu/top-menu-theme';
 
 @mixin theme($theme) {
-  @include footer-theme.theme($theme);
-  @include layout-global-theme.theme($theme);
-  @include marketing-layout-theme.theme($theme);
-  @include not-found-theme.theme($theme);
-  @include sidenav-theme.theme($theme);
-  @include top-menu-theme.theme($theme);
+    @include footer-theme.theme($theme);
+    @include layout-global-theme.theme($theme);
+    @include marketing-layout-theme.theme($theme);
+    @include not-found-theme.theme($theme);
+    @include sidenav-theme.theme($theme);
+    @include top-menu-theme.theme($theme);
 }

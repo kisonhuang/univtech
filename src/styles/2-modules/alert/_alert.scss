@@ -9,21 +9,21 @@
     clear: both;
 
     h1, h2, h3, h4, h5, h6 {
-      font-weight: 500;
+        font-weight: 500;
     }
 
     &.archive-warning {
-      border-radius: 4px;
-      margin-bottom: 1rem;
+        border-radius: 4px;
+        margin-bottom: 1rem;
 
-      a {
-        font-weight: bold;
-        text-decoration: underline;
+        a {
+            font-weight: bold;
+            text-decoration: underline;
 
-        &:hover {
-          opacity: 0.9;
+            &:hover {
+                opacity: 0.9;
+            }
         }
-      }
     }
 
     > p {
