@@ -1,13 +1,33 @@
-export interface UnsafeDocumentContents {
-    /** The unique identifier for this document */
+/**
+ * 安全的文档内容
+ */
+export interface DocumentSafe {
+
+    /**
+     * 文档的唯一标识
+     */
     id: string;
-    /** The HTML to display in the doc viewer */
-    contents: string|null;
+
+    /**
+     * 文档查看器中显示的HTML
+     */
+    contents: TrustedHTML | null;
+
 }
 
-export interface DocumentContents {
-    /** The unique identifier for this document */
+/**
+ * 不安全的文档内容
+ */
+export interface DocumentUnsafe {
+
+    /**
+     * 文档的唯一标识
+     */
     id: string;
-    /** The HTML to display in the doc viewer */
-    contents: TrustedHTML|null;
+
+    /**
+     * 文档查看器中显示的HTML
+     */
+    contents: string | null;
+
 }
