@@ -4,12 +4,10 @@
 <style type="text/css">
     #path_icon_u {
         fill: #FFFFFF;
-        stroke: #FFFFFF;
     }
 
     #ellipse_left, #ellipse_right {
         fill: #DCD9D9;
-        stroke: #DCD9D9;
     }
 </style>
 
