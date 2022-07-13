@@ -1,28 +1,19 @@
 /**
- * A simple, no-op service worker that takes immediate control.
- * Use this file if the active service worker has a bug and we
- * want to deactivate the worker on client browsers while we
- * investigate the problem.
+ * 简单的、什么都不做的、采用即时控制的Service Worker。
+ * 激活的Service Worker存在Bug，调查问题时想要停掉客户端浏览器上的Worker的话，可以使用这个文件。
  *
- * To activate this service worker file, rename it to `worker-basic.min.js`
- * and deploy to the hosting. When the original worker files cache
- * expires, this one will take its place. (Browsers ensure that the expiry
- * time is never longer than 24 hours, but the default expiry time on Firebase
- * is 60 mins).
+ * 要激活这个Service Worker文件的话，把文件重命名为worker-basic.min.js，然后部署到服务器上。
+ * 原来的Worker文件缓存过期时，这个文件会替代原来的Worker文件。
+ * 浏览器会确保过期时间不会超过24小时，但是Firebase的默认过期时间为60分钟。
  */
 
-// Skip over the "waiting" lifecycle state, to ensure that our
-// new service worker is activated immediately, even if there's
-// another tab open controlled by our older service worker code.
+// 跳过waiting生命周期状态，确保新的Service Worker会被立即激活，即使旧的Service Worker代码控制着别的Tab
 self.addEventListener('install', function (event) {
     event.waitUntil(self.skipWaiting());
 });
 
-
-// Get a list of all the current open windows/tabs under
-// our service worker's control, and force them to reload.
-// This can "unbreak" any open windows/tabs as soon as the new
-// service worker activates, rather than users having to manually reload.
+// 获取当前打开的、Service Worker控制的所有窗口或Tab，并强制重新加载。
+// 这样在激活新的Service Worker时，可以恢复打开的所有窗口或Tab，不需要手动重新加载。
 self.addEventListener('activate', function (event) {
     event.waitUntil(self.clients.claim());
 });
