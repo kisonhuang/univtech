@@ -5,7 +5,7 @@ export const environment = {
     production: false,
 
     // 谷歌分析服务的产品ID
-    gaId: 'Google Analytics Service ID',
+    gaId: 'UA-8594346-26',
 
     // 模式
     mode: 'stable'
