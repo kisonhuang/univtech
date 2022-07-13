@@ -1,13 +1,13 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh">
 
 <head>
     <meta charset="utf-8">
-    <title>Angular</title>
-    <meta name="Description" content="Angular is a platform for building mobile and desktop web applications.
-    Join the community of millions of developers who build compelling user interfaces with Angular.">
+    <title>油腻教程</title>
+    <meta name="Description" content="油腻教程描述">
     <base href="/">
 
+    <!-- 注意：这些地址访问不了 -->
     <link rel="preconnect" href="https://www.google-analytics.com">
     <link rel="dns-prefetch" href="https://www.google-analytics.com">
     <link rel="preconnect" href="https://stats.g.doubleclick.net">
@@ -17,44 +17,42 @@
 
     <link rel="search" type="application/opensearchdescription+xml" href="assets/opensearch.xml">
     <link rel="icon" type="image/x-icon" href="assets/images/favicons/favicon.ico">
-    <link rel="icon" type="image/png" href="assets/images/favicons/favicon-32x32.png" sizes="32x32">
-    <link rel="icon" type="image/png" href="assets/images/favicons/favicon-194x194.png" sizes="194x194">
-    <link rel="icon" type="image/png" href="assets/images/favicons/favicon-96x96.png" sizes="96x96">
-    <link rel="icon" type="image/png" href="assets/images/favicons/favicon-16x16.png" sizes="16x16">
-    <link rel="apple-touch-icon" sizes="144x144" href="assets/images/favicons/favicon-144x144.png">
-    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="assets/images/favicons/favicon-144x144.png">
+    <link rel="icon" type="image/png" href="assets/images/favicons/favicon-32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="assets/images/favicons/favicon-194.png" sizes="194x194">
+    <link rel="icon" type="image/png" href="assets/images/favicons/favicon-96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="assets/images/favicons/favicon-16.png" sizes="16x16">
+    <link rel="apple-touch-icon" sizes="144x144" href="assets/images/favicons/favicon-144.png">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="assets/images/favicons/favicon-144.png">
 
-    <!-- NOTE: These need to be kept in sync with `ngsw-config.template.json`. -->
+    <!-- 注意：这些地址必须与ngsw-config.json保持一致 -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500&display=swap">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons&display=block">
-    <!-- -->
 
-    <style id="aio-initial-theme">
-        @import url("light-theme.css") (prefers-color-scheme: light);
-        @import url("dark-theme.css") (prefers-color-scheme: dark);
+    <style id="univ-initial-theme" lang="scss">
+        @import url("styles/custom-themes/light-theme.scss") (prefers-color-scheme: light);
+        @import url("styles/custom-themes/dark-theme.scss") (prefers-color-scheme: dark);
     </style>
 
     <link rel="manifest" href="pwa-manifest.json">
-    <meta name="theme-color" content="#1976d2">
+    <meta name="theme-color" content="#1976D2">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="translucent">
 
     <script>
-        // Dynamically, pre-emptively, add `noindex`, which will be removed when the doc is ready and valid
+        // 动态地预先添加noindex，文档准备好且有效时删除
         tag = document.createElement('meta');
         tag.name = 'robots';
         tag.content = 'noindex';
         document.head.appendChild(tag);
     </script>
 
-    <!-- Google Analytics -->
     <script>
-        // Note this is a customised version of the GA tracking snippet
-        // See the comments below for more info
+        // 谷歌分析服务
+        // 注意：这是自定义的谷歌分析跟踪代码
         (function (i, s, o, g, r, a, m) {
             if (i.trustedTypes) {
-                // Specify path as a TrustedScriptURL when Trusted Types are available
+                // Trusted类型可用时，把路径指定为TrustedScriptURL
                 g = i.trustedTypes.createPolicy('aio#analytics', {
                     createScriptURL: function (s) {
                         return s;
@@ -69,33 +67,32 @@
                 m = s.getElementsByTagName(o)[0];
             a.async = 1;
             a.src = g;
-            ~i.name.indexOf('NG_DEFER_BOOTSTRAP') || // only load library if not running e2e tests
-            m.parentNode.insertBefore(a, m)
+            // 不运行e2e测试时，只加载库
+            ~i.name.indexOf('NG_DEFER_BOOTSTRAP') || m.parentNode.insertBefore(a, m)
         })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
     </script>
-    <!-- End Google Analytics -->
 
     <script>
-        // Report fatal errors to Google Analytics
+        // 向谷歌分析服务报告致命错误
         window.onerror = function () {
-            ga('send', 'exception', {exDescription: formatError.apply(null, arguments), exFatal: true});
+            callGaFunc('send', 'exception', {exDescription: formatError.apply(null, arguments), exFatal: true});
 
             function formatError(msg, url, line, col, e) {
                 var stack;
                 msg = msg.replace(/^Error: /, '');
                 if (e && e.stack) {
                     stack = e.stack
-                        // strip the leading "Error: " from the stack trace
+                        // 去掉开头的`Error: `
                         .replace(/^Error: /, '')
-                        // strip the message from the stack trace, if present
+                        // 去掉消息
                         .replace(msg + '\n', '')
-                        // strip leading spaces
+                        // 去掉开头的空格
                         .replace(/^ +/gm, '')
-                        // strip all leading "at " for each frame
+                        // 去掉开头的`at `
                         .replace(/^at /gm, '')
-                        // replace long urls with just the last segment: `filename:line:column`
+                        // 把长地址替换为最后一个片段`filename:line:column`
                         .replace(/(?: \(|@)http.+\/([^/)]+)\)?(?:\n|$)/gm, '@$1\n')
-                        // replace "eval code" in Edge
+                        // 替换`eval code`
                         .replace(/ *\(eval code(:\d+:\d+)\)(?:\n|$)/gm, '@???$1\n')
                 } else {
                     line = line || '?';
@@ -111,18 +108,18 @@
 
 <body>
 
-<aio-shell></aio-shell>
+<univ-app></univ-app>
 
 <noscript>
     <div class="background-sky hero"></div>
     <section id="intro" style="text-shadow: 1px 1px #1976d2;">
         <div class="hero-logo"></div>
         <div class="homepage-container">
-            <div class="hero-headline">The modern web<br>developer's platform</div>
+            <div class="hero-headline">现代Web开发平台</div>
         </div>
     </section>
     <h2 style="color: red; margin-top: 40px; position: relative; text-align: center; text-shadow: 1px 1px #fafafa; border-top: none;">
-        <b><i>This website requires JavaScript.</i></b>
+        <b><i>这个网站需要JavaScript。</i></b>
     </h2>
 </noscript>
 
