@@ -1,22 +1,22 @@
 {
-    "name": "Angular Documentation",
-    "short_name": "angular.io",
-    "background_color": "#1976d2",
-    "theme_color": "#1976d2",
+    "name": "Univ Docs",
+    "short_name": "univtech.org.cn",
+    "background_color": "#1976D2",
+    "theme_color": "#1976D2",
     "display": "standalone",
     "icons": [
         {
-            "src": "assets/images/favicons/favicon-194x194.png",
+            "src": "assets/images/favicons/favicon-194.png",
             "sizes": "194x194 512x512",
             "type": "image/png"
         },
         {
-            "src": "assets/images/favicons/favicon-144x144.png",
+            "src": "assets/images/favicons/favicon-144.png",
             "sizes": "144x144",
             "type": "image/png"
         },
         {
-            "src": "assets/images/favicons/favicon-144x144-maskable.png",
+            "src": "assets/images/favicons/favicon-180.png",
             "sizes": "144x144",
             "type": "image/png",
             "purpose": "maskable"
