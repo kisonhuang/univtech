@@ -1,0 +1,5 @@
+# 允许所有URL
+# 参考：https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Disallow:
+Sitemap: https://angular.io/generated/sitemap.xml
