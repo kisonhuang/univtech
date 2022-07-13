@@ -14,8 +14,8 @@
 // Skip over the "waiting" lifecycle state, to ensure that our
 // new service worker is activated immediately, even if there's
 // another tab open controlled by our older service worker code.
-self.addEventListener('install', function(event) {
-  event.waitUntil(self.skipWaiting());
+self.addEventListener('install', function (event) {
+    event.waitUntil(self.skipWaiting());
 });
 
 
@@ -23,6 +23,6 @@ self.addEventListener('install', function(event) {
 // our service worker's control, and force them to reload.
 // This can "unbreak" any open windows/tabs as soon as the new
 // service worker activates, rather than users having to manually reload.
-self.addEventListener('activate', function(event) {
-  event.waitUntil(self.clients.claim());
+self.addEventListener('activate', function (event) {
+    event.waitUntil(self.clients.claim());
 });
