@@ -1,17 +1,16 @@
-# See http://help.github.com/ignore-files/ for more about ignoring files.
-
-# Compiled output
+# 编译输出
 /dist
 /tmp
 /out-tsc
 /bazel-out
+/src/generated
 
-# Node
+# Node.js
 /node_modules
 npm-debug.log
 yarn-error.log
 
-# IDEs and editors
+# IDE和编辑器
 .idea/
 .project
 .classpath
@@ -20,7 +19,7 @@ yarn-error.log
 .settings/
 *.sublime-workspace
 
-# Visual Studio Code
+# VSCode
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
@@ -28,15 +27,20 @@ yarn-error.log
 !.vscode/extensions.json
 .history/*
 
-# Miscellaneous
+# 其他
 /.angular/cache
+/.firebase/
 .sass-cache/
 /connect.lock
 /coverage
 /libpeerconnection.log
+firebase-debug.log
 testem.log
 /typings
 
-# System files
+# E2E
+protractor-results*.txt
+
+# 系统文件
 .DS_Store
 Thumbs.db
