@@ -23,7 +23,7 @@
                     "error",
                     {
                         "type": "element",
-                        "prefix": "aio",
+                        "prefix": "univ",
                         "style": "kebab-case"
                     }
                 ],
@@ -31,7 +31,7 @@
                     "error",
                     {
                         "type": "attribute",
-                        "prefix": "aio",
+                        "prefix": "univ",
                         "style": "camelCase"
                     }
                 ],
@@ -39,7 +39,7 @@
                 "indent": "off",
                 "max-len": [
                     "error",
-                    120
+                    250
                 ],
                 "@typescript-eslint/member-delimiter-style": [
                     "error",
