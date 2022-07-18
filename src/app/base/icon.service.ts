@@ -1,4 +1,4 @@
-import {Inject, Injectable, InjectionToken, ErrorHandler, Optional} from '@angular/core';
+import {Inject, Injectable, InjectionToken, StaticProvider, ErrorHandler, Optional} from '@angular/core';
 import {DOCUMENT} from '@angular/common';
 import {HttpClient} from '@angular/common/http';
 import {DomSanitizer} from '@angular/platform-browser';
@@ -42,7 +42,7 @@ const svgSourceGithub = convertSvgTemplate`
 
 export const SvgIconToken = new InjectionToken<Array<SvgIcon>>('SvgIcon');
 
-export const svgIconProviders = [
+export const svgIconProviders: StaticProvider[] = [
     {
         provide: SvgIconToken,
         useValue: {name: 'close', source: svgSourceClose},
