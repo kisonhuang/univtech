@@ -18,8 +18,7 @@ export class LocationService {
 
     currentUrl = this.urlSubject.pipe(map(url => this.stripSlashes(url)));
 
-    // 去掉URL的查询参数和hash片段
-    currentPath = this.currentUrl.pipe(map(url => (url.match(/[^?#]*/) || [])[0]), tap(path => this.googleService.locationChanged(path)));
+    currentPath = this.currentUrl.pipe(map(url => (url.match(/[^?#]*/) || [])[0]), tap(path => this.googleService.changeLocation(path)));
 
     constructor(private platformLocation: PlatformLocation,
                 private location: Location,
@@ -29,38 +28,31 @@ export class LocationService {
         this.location.subscribe(state => this.urlSubject.next(state.url || ''));
     }
 
-    /**
-     * 下一次用户发起导航时，需要完整的页面导航，而非应用程序内的导航
-     */
     fullPageNavigationNeeded(): void {
         this.fullPageNavigation = true;
     }
 
-    // TODO: ignore if url-without-hash-or-search matches current location?
-    go(url: string | null | undefined) {
+    gotoUrl(url: string | null | undefined) {
         if (!url) {
             return;
         }
         url = this.stripSlashes(url);
         if (/^http/.test(url)) {
-            // Has http protocol so leave the site
-            this.goExternal(url);
+            this.gotoExternalUrl(url);
         } else if (this.fullPageNavigation) {
-            // Do a "full page navigation".
-            // We need to remove the stored scroll position to ensure we scroll to the top.
             this.scrollService.removeStoredScrollInfo();
-            this.goExternal(url);
+            this.gotoExternalUrl(url);
         } else {
             this.location.go(url);
             this.urlSubject.next(url);
         }
     }
 
-    goExternal(url: string) {
+    gotoExternalUrl(url: string) {
         window.location.assign(url);
     }
 
-    replace(url: string) {
+    replaceUrl(url: string) {
         window.location.replace(url);
     }
 
@@ -72,91 +64,60 @@ export class LocationService {
         return url.replace(/^\/+/, '').replace(/\/+(\?|#|$)/, '$1');
     }
 
-    search() {
-        const search: { [index: string]: string | undefined } = {};
+    getSearchParams() {
+        const search: { [key: string]: string | undefined } = {};
         const path = this.location.path();
-        const q = path.indexOf('?');
-        if (q > -1) {
+        const index = path.indexOf('?');
+        if (index > -1) {
             try {
-                const params = path.slice(q + 1).split('&');
-                params.forEach(p => {
-                    const pair = p.split('=');
-                    if (pair[0]) {
-                        search[decodeURIComponent(pair[0])] = pair[1] && decodeURIComponent(pair[1]);
+                const params = path.slice(index + 1).split('&');
+                params.forEach(param => {
+                    const paramPair = param.split('=');
+                    if (paramPair[0]) {
+                        search[decodeURIComponent(paramPair[0])] = paramPair[1] && decodeURIComponent(paramPair[1]);
                     }
                 });
             } catch (e) {
-                /* don't care */
+
             }
         }
         return search;
     }
 
-    setSearch(label: string, params: { [key: string]: string | undefined }) {
-        const search = Object.keys(params).reduce((acc, key) => {
+    setSearchParams(title: string, params: { [key: string]: string | undefined }) {
+        const search = Object.keys(params).reduce((result, key) => {
             const value = params[key];
-            return (value === undefined) ? acc : acc += (acc ? '&' : '?') + `${encodeURIComponent(key)}=${encodeURIComponent(value)}`;
+            return (value === undefined) ? result : result += (result ? '&' : '?') + `${encodeURIComponent(key)}=${encodeURIComponent(value)}`;
         }, '');
 
-        this.platformLocation.replaceState({}, label, this.platformLocation.pathname + search);
+        this.platformLocation.replaceState({}, title, this.platformLocation.pathname + search);
     }
 
-    /**
-     * Handle user's anchor click
-     *
-     * @param anchor The anchor element clicked
-     * @param button Number of the mouse button held down. 0 means left or none
-     * @param ctrlKey True if control key held down
-     * @param metaKey True if command or window key held down
-     * @return false if service navigated with `go()`; true if browser should handle it.
-     *
-     * Since we are using `LocationService` to navigate between docs, without the browser
-     * reloading the page, we must intercept clicks on links.
-     * If the link is to a document that we will render, then we navigate using `Location.go()`
-     * and tell the browser not to handle the event.
-     *
-     * In most apps you might do this in a `LinkDirective` attached to anchors but in this app
-     * we have a special situation where the `DocViewerComponent` is displaying semi-static
-     * content that cannot contain directives. So all the links in that content would not be
-     * able to use such a `LinkDirective`. Instead we are adding a click handler to the
-     * `AppComponent`, whose element contains all the of the application and so captures all
-     * link clicks both inside and outside the `DocViewerComponent`.
-     */
-    handleAnchorClick(anchor: HTMLAnchorElement, button = 0, ctrlKey = false, metaKey = false) {
-
-        // Check for modifier keys and non-left-button, which indicate the user wants to control navigation
-        if (button !== 0 || ctrlKey || metaKey) {
+    handleAnchorClick(anchorElement: HTMLAnchorElement, mouseButton = 0, ctrlKey = false, metaKey = false) {
+        if (mouseButton !== 0 || ctrlKey || metaKey) {
             return true;
         }
 
-        // If there is a target and it is not `_self` then we take this
-        // as a signal that it doesn't want to be intercepted.
-        // TODO: should we also allow an explicit `_self` target to opt-out?
-        const anchorTarget = anchor.target;
+        const anchorTarget = anchorElement.target;
         if (anchorTarget && anchorTarget !== '_self') {
             return true;
         }
 
-        if (anchor.getAttribute('download') != null) {
-            return true; // let the download happen
-        }
-
-        const {pathname, search, hash} = anchor;
-        // Fix in-page anchors that are supposed to point to fragments inside the page, but are resolved
-        // relative the the root path (`/`), due to the base URL being set to `/`.
-        // (See https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base#in-page_anchors.)
-        const isInPageAnchor = anchor.getAttribute('href')?.startsWith('#') ?? false;
-        const correctPathname = isInPageAnchor ? this.location.path() : pathname;
-        const relativeUrl = correctPathname + search + hash;
-        this.urlParser.href = relativeUrl;
-
-        // don't navigate if external link or has extension
-        if ((!isInPageAnchor && anchor.href !== this.urlParser.href) || !/\/[^/.]*$/.test(pathname)) {
+        if (anchorElement.getAttribute('download') != null) {
             return true;
         }
 
-        // approved for navigation
-        this.go(relativeUrl);
+        const {pathname, search, hash} = anchorElement;
+        const isInPageAnchor = anchorElement.getAttribute('href')?.startsWith('#') ?? false;
+        const currentPathname = isInPageAnchor ? this.location.path() : pathname;
+        const relativeUrl = currentPathname + search + hash;
+        this.urlParser.href = relativeUrl;
+
+        if ((!isInPageAnchor && anchorElement.href !== this.urlParser.href) || !/\/[^/.]*$/.test(pathname)) {
+            return true;
+        }
+
+        this.gotoUrl(relativeUrl);
         return false;
     }
 
