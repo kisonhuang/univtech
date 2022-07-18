@@ -1,30 +1,16 @@
 import {ErrorHandler, Inject, Injectable, VERSION} from '@angular/core';
+
 import {WindowToken} from './window.service';
 
-/**
- * 扩展默认的错误处理器，向外部服务报告错误，例如：谷歌分析服务。<br>
- * Angular应用程序之外的错误也可以通过window.onerror来处理。
- */
 @Injectable()
 export class ErrorService extends ErrorHandler {
 
-    /**
-     * 构造函数，创建ReportingErrorHandler。
-     *
-     * @param window Window对象
-     */
     constructor(@Inject(WindowToken) private window: Window) {
         super();
     }
 
-    /**
-     * 处理错误信息，把错误信息发送到谷歌分析服务。
-     *
-     * @param error 错误信息
-     */
     override handleError(error: any) {
-        const versionedError = this.prefixErrorWithVersion(error);
-
+        const versionedError = this.addVersionPrefix(error);
         try {
             super.handleError(versionedError);
         } catch (e) {
@@ -33,33 +19,19 @@ export class ErrorService extends ErrorHandler {
         this.reportError(versionedError);
     }
 
-    /**
-     * 在错误信息前面添加版本信息。
-     *
-     * @param error 错误信息
-     */
-    private prefixErrorWithVersion<T>(error: T): T {
+    private addVersionPrefix<T>(error: T): T {
         const prefix = `[v${VERSION.full}] `;
-
         if (error instanceof Error) {
             const oldMessage = error.message;
-            const oldStack = error.stack;
-
-            error.message = prefix + oldMessage;
-            error.stack = oldStack?.replace(oldMessage, error.message);
+            const newMessage = prefix + oldMessage;
+            error.message = newMessage;
+            error.stack = error.stack?.replace(oldMessage, newMessage);
         } else if (typeof error === 'string') {
             error = prefix + error as unknown as T;
         }
-
-        // 其他类型，返回原始错误对象
         return error;
     }
 
-    /**
-     * 报告错误。
-     *
-     * @param error 错误信息
-     */
     private reportError(error: unknown) {
         if (this.window.onerror) {
             if (error instanceof Error) {
@@ -69,7 +41,7 @@ export class ErrorService extends ErrorHandler {
                     try {
                         error = JSON.stringify(error);
                     } catch {
-                        // 忽略错误
+
                     }
                 }
                 this.window.onerror(`${error}`);
