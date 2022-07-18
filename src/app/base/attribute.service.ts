@@ -19,9 +19,9 @@ export function getAttrValue(attrMap: AttrMap, attrNames: string | string[]): st
 }
 
 export function getAttrValueOfBool(element: HTMLElement | ElementRef, attrNames: string | string[], defaultValue: boolean = false): boolean {
-    return convertToBool(getAttrValue(getAttrMap(element), attrNames), defaultValue);
+    return convertValueToBool(getAttrValue(getAttrMap(element), attrNames), defaultValue);
 }
 
-export function convertToBool(attrValue: string | undefined, defaultValue: boolean = false) {
+export function convertValueToBool(attrValue: string | undefined, defaultValue: boolean = false) {
     return attrValue === undefined ? defaultValue : attrValue.trim() !== 'false';
 }
