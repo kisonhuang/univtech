@@ -6,7 +6,7 @@ import {environment} from '../../environments/environment';
 @Injectable()
 export class DeploymentService {
 
-    mode: string = this.locationService.search().mode || environment.mode;
+    mode: string = this.locationService.getSearchParams().mode || environment.mode;
 
     constructor(private locationService: LocationService) {
 

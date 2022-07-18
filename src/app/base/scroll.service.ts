@@ -95,11 +95,7 @@ export class ScrollService implements OnDestroy {
             element.focus?.();
 
             if (window && window.scrollBy) {
-                // 尽可能多地滚动，让元素顶部对齐到topOffset。
-                // 通常.top为0，除非元素不能一直向上滚动到顶部，因为viewport比元素后面内容的高度大。
                 window.scrollBy(0, element.getBoundingClientRect().top - this.topOffset);
-
-                // 元素在页面顶部，但是元素的顶部外边距很小（小于20px）时，一直向上滚动到顶部
                 if (window.pageYOffset < 20) {
                     window.scrollBy(0, -window.pageYOffset);
                 }
@@ -134,7 +130,6 @@ export class ScrollService implements OnDestroy {
     updateScrollPositionInHistory() {
         if (this.supportManualScrollRestoration) {
             const currentScrollPosition = this.viewportScroller.getScrollPosition();
-            // 把浏览器URL修改为指定的规范的URL，并替换平台history栈中最上面的条目
             this.location.replaceState(this.location.path(true), undefined, {scrollPosition: currentScrollPosition});
             this.storage.setItem('scrollPosition', currentScrollPosition.join(','));
         }
