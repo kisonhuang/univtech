@@ -9,7 +9,7 @@ import {unwrapHtmlForSink} from 'safevalues';
 
 /**
  * Use SVG_ICONS (and SvgIconInfo) as "multi" providers to provide the SVG source
- * code for the icons that you wish to have preloaded in the `SvgIconService`
+ * code for the icons that you wish to have preloaded in the `IconService`
  * For compatibility with the MdIconComponent, please ensure that the SVG source has
  * the following attributes:
  *
@@ -41,7 +41,7 @@ const DEFAULT_NS = '$$default';
  * us to provide preloaded icon SVG sources.
  */
 @Injectable()
-export class SvgIconService extends MatIconRegistry {
+export class IconService extends MatIconRegistry {
     private cachedSvgElements: SvgIconMap = {[DEFAULT_NS]: {}};
 
     constructor(http: HttpClient, sanitizer: DomSanitizer, @Optional() @Inject(DOCUMENT) document: Document,

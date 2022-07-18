@@ -1,4 +1,4 @@
-import {SVG_ICONS} from './svg-icon.service';
+import {SVG_ICONS} from './icon.service';
 import {fromSvg} from './security.service';
 
 export const svgIconProviders = [

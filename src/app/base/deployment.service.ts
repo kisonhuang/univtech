@@ -7,7 +7,7 @@ import {environment} from '../../environments/environment';
  * 应用程序的部署信息
  */
 @Injectable()
-export class Deployment {
+export class DeploymentService {
 
     // mode查询参数（例如：...?mode=archive）中设置的部署模式，或者构建时提供的environment中设置的部署模式
     mode: string = this.location.search()['mode'] || environment.mode;

@@ -6,7 +6,7 @@ import {environment} from '../../environments/environment';
  * 日志记录器服务
  */
 @Injectable()
-export class Logger {
+export class LogService {
 
     /**
      * 构造函数，创建日志记录器

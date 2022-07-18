@@ -6,7 +6,7 @@ import {WindowToken} from './window.service';
  * Angular应用程序之外的错误也可以通过window.onerror来处理。
  */
 @Injectable()
-export class ReportingErrorHandler extends ErrorHandler {
+export class ErrorService extends ErrorHandler {
 
     /**
      * 构造函数，创建ReportingErrorHandler。
