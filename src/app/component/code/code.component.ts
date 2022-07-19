@@ -35,17 +35,7 @@ import {CodePrettyService} from './code-pretty.service';
  */
 @Component({
     selector: 'univ-code',
-    template: `
-        <pre class="prettyprint lang-{{language}}">
-      <button *ngIf="!hideCopy" class="material-icons copy-button no-print"
-              title="Copy code snippet"
-              [attr.aria-label]="ariaLabel"
-              (click)="doCopy()">
-        <span aria-hidden="true">content_copy</span>
-      </button>
-      <code class="animated fadeIn" #codeContainer></code>
-    </pre>
-    `
+    templateUrl: './code.component.html'
 })
 export class CodeComponent implements OnChanges {
     ariaLabel = '';
@@ -110,8 +100,8 @@ export class CodeComponent implements OnChanges {
 
     constructor(private clipboard: Clipboard,
                 private matSnackBar: MatSnackBar,
-                private codePrettyService: CodePrettyService,
-                private logService: LogService) {
+                private logService: LogService,
+                private codePrettyService: CodePrettyService) {
 
     }
 
