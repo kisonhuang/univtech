@@ -7,73 +7,67 @@ import {catchError, map, switchMap, tap} from 'rxjs/operators';
 import {htmlEscape} from 'safevalues';
 import {htmlFromStringKnownToSatisfyTypeContract} from 'safevalues/unsafe/reviewed';
 
-import {Logger} from '../../base/logger.service';
+import {LogService} from '../../base/log.service';
 import {LocationService} from '../../base/location.service';
 
 import {DocumentSafe, DocumentUnsafe} from './document.model';
 
-export const FILE_NOT_FOUND_ID = 'file-not-found';
+export const UrlPrefixContent = 'content/';
 
-export const FETCHING_ERROR_ID = 'fetching-error';
+export const UrlPrefixDocs = UrlPrefixContent + 'docs/';
 
-export const CONTENT_URL_PREFIX = 'generated/';
+export const DocNotFoundId = 'file-not-found';
 
-export const DOC_CONTENT_URL_PREFIX = CONTENT_URL_PREFIX + 'docs/';
+export const DocFetchErrorId = 'doc-fetch-error';
 
-const FETCHING_ERROR_CONTENTS = (path: string) => htmlFromStringKnownToSatisfyTypeContract(`
+const docFetchErrorContent = (path: string) => htmlFromStringKnownToSatisfyTypeContract(`
     <div class="nf-container l-flex-wrap flex-center">
         <div class="nf-icon material-icons">error_outline</div>
         <div class="nf-response l-flex-wrap center">
             <h1 class="no-toc">请求文档失败</h1>
             <p>无法获取${htmlEscape(path)}页面，请检查连接，稍后再试。</p>
         </div>
-    </div>`, 'inline HTML with interpolations escaped'
+    </div>`, ''
 );
 
 @Injectable()
 export class DocumentService {
 
-    private cache = new Map<string, Observable<DocumentSafe>>();
+    private docMap = new Map<string, Observable<DocumentSafe>>();
 
     currentDocument: Observable<DocumentSafe>;
 
-    constructor(
-        private logger: Logger,
-        private http: HttpClient,
-        location: LocationService) {
-        // Whenever the URL changes we try to get the appropriate doc
+    constructor(private httpClient: HttpClient,
+                private logService: LogService,
+                location: LocationService) {
         this.currentDocument = location.currentPath.pipe(switchMap(path => this.getDocument(path)));
     }
 
     private getDocument(url: string) {
         const id = url || 'index';
-        this.logger.log('getting document', id);
-        if (!this.cache.has(id)) {
-            this.cache.set(id, this.fetchDocument(id));
+        this.logService.log('获取文档：', id);
+        if (!this.docMap.has(id)) {
+            this.docMap.set(id, this.fetchDocument(id));
         }
-        return this.cache.get(id) as Observable<DocumentSafe>;
+        return this.docMap.get(id) as Observable<DocumentSafe>;
     }
 
     private fetchDocument(id: string): Observable<DocumentSafe> {
-        const requestPath = `${DOC_CONTENT_URL_PREFIX}${encodeToLowercase(id)}.json`;
+        const requestPath = `${UrlPrefixDocs}${encodeToLowerCase(id)}.json`;
         const subject = new AsyncSubject<DocumentSafe>();
 
-        this.logger.log('fetching document from', requestPath);
-        this.http.get<DocumentUnsafe>(requestPath, {responseType: 'json'})
+        this.logService.log('获取文档：', requestPath);
+        this.httpClient.get<DocumentUnsafe>(requestPath, {responseType: 'json'})
             .pipe(
                 tap(data => {
                     if (!data || typeof data !== 'object') {
-                        this.logger.log('received invalid data:', data);
-                        throw Error('Invalid data');
+                        this.logService.log('接受到无效数据：', data);
+                        throw Error('无效数据');
                     }
                 }),
-                map((data: DocumentUnsafe) => ({
-                    id: data.id,
-                    contents: data.contents === null ?
-                        null :
-                        // SECURITY: HTML is authored by the documentation team and is fetched directly
-                        // from the server
-                        htmlFromStringKnownToSatisfyTypeContract(data.contents, '^')
+                map((doc: DocumentUnsafe) => ({
+                    id: doc.id,
+                    contents: doc.contents === null ? null : htmlFromStringKnownToSatisfyTypeContract(doc.contents, '^')
                 })),
                 catchError((error: HttpErrorResponse) =>
                     error.status === 404 ? this.getFileNotFoundDoc(id) : this.getErrorDoc(id, error)
@@ -85,34 +79,28 @@ export class DocumentService {
     }
 
     private getFileNotFoundDoc(id: string): Observable<DocumentSafe> {
-        if (id !== FILE_NOT_FOUND_ID) {
-            this.logger.error(new Error(`Document file not found at '${id}'`));
-            // using `getDocument` means that we can fetch the 404 doc contents from the server and cache it
-            return this.getDocument(FILE_NOT_FOUND_ID);
+        if (DocNotFoundId !== id) {
+            this.logService.error(new Error(`文档'${id}'未找到`));
+            return this.getDocument(DocNotFoundId);
         } else {
             return of({
-                id: FILE_NOT_FOUND_ID,
-                contents: htmlEscape('Document not found')
+                id: DocNotFoundId,
+                contents: htmlEscape('文档未找到')
             });
         }
     }
 
     private getErrorDoc(id: string, error: HttpErrorResponse): Observable<DocumentSafe> {
-        this.logger.error(new Error(`Error fetching document '${id}': (${error.message})`));
-        this.cache.delete(id);
+        this.logService.error(new Error(`文档'${id}'获取错误：(${error.message})`));
+        this.docMap.delete(id);
         return of({
-            id: FETCHING_ERROR_ID,
-            contents: FETCHING_ERROR_CONTENTS(id),
+            id: DocFetchErrorId,
+            contents: docFetchErrorContent(id),
         });
     }
 
 }
 
-/**
- * 把路径编码为确定的、可逆的、不区分大小写的内容，避免在不区分大小写的文件系统上发生冲突。
- * + 把下划线（`_`）转换为双下划线（`__`）。
- * + 把大写字母转换为小写字母，并在后面添加下划线（`_`）。
- */
-function encodeToLowercase(str: string): string {
+function encodeToLowerCase(str: string): string {
     return str.replace(/[A-Z_]/g, char => char.toLowerCase() + '_');
 }
