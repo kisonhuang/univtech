@@ -1,0 +1,3 @@
+<nav [attr.aria-label]="navLabel || null">
+    <aio-nav-item *ngFor="let node of filteredNodes" [node]="node" [selectedNodes]="currentNode?.nodes" [isWide]="isWide"></aio-nav-item>
+</nav>
