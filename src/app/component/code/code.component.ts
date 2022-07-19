@@ -1,13 +1,16 @@
-import {Component, ElementRef, EventEmitter, Input, OnChanges, Output, ViewChild} from '@angular/core';
+import {Component, OnChanges, Input, Output, ViewChild, EventEmitter, ElementRef} from '@angular/core';
 import {Clipboard} from '@angular/cdk/clipboard';
-import {Logger} from 'app/shared/logger.service';
-import {PrettyPrinter} from './pretty-printer.service';
 import {MatSnackBar} from '@angular/material/snack-bar';
+
 import {Observable, of} from 'rxjs';
 import {tap} from 'rxjs/operators';
+
 import {unwrapHtmlForSink} from 'safevalues';
 import {htmlFromStringKnownToSatisfyTypeContract} from 'safevalues/unsafe/reviewed';
-import {fromOuterHTML} from 'app/shared/security';
+
+import {LogService} from '../../base/log.service';
+import {convertOuterHTML} from '../../base/security.service';
+import {CodePrettyService} from './code-pretty.service';
 
 /**
  * Formatted Code Block
@@ -31,7 +34,7 @@ import {fromOuterHTML} from 'app/shared/security';
  * Renders code provided through the `updateCode` method.
  */
 @Component({
-    selector: 'aio-code',
+    selector: 'univ-code',
     template: `
         <pre class="prettyprint lang-{{language}}">
       <button *ngIf="!hideCopy" class="material-icons copy-button no-print"
@@ -105,11 +108,11 @@ export class CodeComponent implements OnChanges {
     /** The element in the template that will display the formatted code. */
     @ViewChild('codeContainer', {static: true}) codeContainer: ElementRef;
 
-    constructor(
-        private snackbar: MatSnackBar,
-        private pretty: PrettyPrinter,
-        private clipboard: Clipboard,
-        private logger: Logger) {
+    constructor(private clipboard: Clipboard,
+                private matSnackBar: MatSnackBar,
+                private codePrettyService: CodePrettyService,
+                private logService: LogService) {
+
     }
 
     ngOnChanges() {
@@ -127,12 +130,12 @@ export class CodeComponent implements OnChanges {
         this.codeText = this.getCodeText(); // store the unformatted code as text (for copying)
 
         const skipPrettify = of(undefined);
-        const prettifyCode = this.pretty
+        const prettifyCode = this.codePrettyService
             .formatCode(leftAlignedCode, this.language, linenums)
             .pipe(tap(formattedCode => this.setCodeHtml(formattedCode)));
 
         if (linenums !== false && this.language === 'none') {
-            this.logger.warn("Using 'linenums' with 'language: none' is currently not supported.");
+            this.logService.warn("Using 'linenums' with 'language: none' is currently not supported.");
         }
 
         ((this.language === 'none' ? skipPrettify : prettifyCode) as Observable<unknown>)
@@ -150,7 +153,7 @@ export class CodeComponent implements OnChanges {
         const el = document.createElement('p');
         el.className = 'code-missing';
         el.textContent = msg;
-        this.setCodeHtml(fromOuterHTML(el));
+        this.setCodeHtml(convertOuterHTML(el));
     }
 
     /** Sets the innerHTML of the code container to the provided code string. */
@@ -174,11 +177,11 @@ export class CodeComponent implements OnChanges {
         const successfullyCopied = this.clipboard.copy(code);
 
         if (successfullyCopied) {
-            this.logger.log('Copied code to clipboard:', code);
-            this.snackbar.open('Code Copied', '', {duration: 800});
+            this.logService.log('Copied code to clipboard:', code);
+            this.matSnackBar.open('Code Copied', '', {duration: 800});
         } else {
-            this.logger.error(new Error(`ERROR copying code to clipboard: "${code}"`));
-            this.snackbar.open('Copy failed. Please try again!', '', {duration: 800});
+            this.logService.error(new Error(`ERROR copying code to clipboard: "${code}"`));
+            this.matSnackBar.open('Copy failed. Please try again!', '', {duration: 800});
         }
     }
 
