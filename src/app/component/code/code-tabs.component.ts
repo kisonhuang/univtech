@@ -1,17 +1,17 @@
 /* eslint-disable  @angular-eslint/component-selector */
-import { AfterViewInit, Component, ElementRef, Input, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
-import { fromInnerHTML } from 'app/shared/security';
-import { CodeComponent } from './code.component';
+import {AfterViewInit, Component, ElementRef, Input, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
+import {fromInnerHTML} from 'app/shared/security';
+import {CodeComponent} from './code.component';
 
 export interface TabInfo {
-  class: string;
-  code: TrustedHTML;
-  path: string;
-  region: string;
+    class: string;
+    code: TrustedHTML;
+    path: string;
+    region: string;
 
-  header?: string;
-  language?: string;
-  linenums?: string;
+    header?: string;
+    language?: string;
+    linenums?: string;
 }
 
 /**
@@ -22,68 +22,70 @@ export interface TabInfo {
  * The optional `linenums` attribute is the default `linenums` for each code pane.
  */
 @Component({
-  selector: 'code-tabs',
-  template: `
-    <!-- Use content projection so that the provided HTML's code-panes can be split into tabs -->
-    <div #content style="display: none"><ng-content></ng-content></div>
+    selector: 'code-tabs',
+    template: `
+        <!-- Use content projection so that the provided HTML's code-panes can be split into tabs -->
+        <div #content style="display: none">
+            <ng-content></ng-content>
+        </div>
 
-    <mat-card>
-      <mat-tab-group class="code-tab-group" [disableRipple]="true">
-        <mat-tab style="overflow-y: hidden;" *ngFor="let tab of tabs">
-          <ng-template mat-tab-label>
-            <span class="{{ tab.class }}">{{ tab.header }}</span>
-          </ng-template>
-          <aio-code class="{{ tab.class }}"
-                    [language]="tab.language"
-                    [linenums]="tab.linenums"
-                    [path]="tab.path"
-                    [region]="tab.region"
-                    [header]="tab.header">
-          </aio-code>
-        </mat-tab>
-      </mat-tab-group>
-    </mat-card>
-  `,
+        <mat-card>
+            <mat-tab-group class="code-tab-group" [disableRipple]="true">
+                <mat-tab style="overflow-y: hidden;" *ngFor="let tab of tabs">
+                    <ng-template mat-tab-label>
+                        <span class="{{ tab.class }}">{{ tab.header }}</span>
+                    </ng-template>
+                    <aio-code class="{{ tab.class }}"
+                              [language]="tab.language"
+                              [linenums]="tab.linenums"
+                              [path]="tab.path"
+                              [region]="tab.region"
+                              [header]="tab.header">
+                    </aio-code>
+                </mat-tab>
+            </mat-tab-group>
+        </mat-card>
+    `,
 })
 export class CodeTabsComponent implements OnInit, AfterViewInit {
-  tabs: TabInfo[];
+    tabs: TabInfo[];
 
-  @Input() linenums: string | undefined;
+    @Input() linenums: string | undefined;
 
-  @ViewChild('content', { static: true }) content: ElementRef<HTMLDivElement>;
+    @ViewChild('content', {static: true}) content: ElementRef<HTMLDivElement>;
 
-  @ViewChildren(CodeComponent) codeComponents: QueryList<CodeComponent>;
+    @ViewChildren(CodeComponent) codeComponents: QueryList<CodeComponent>;
 
-  ngOnInit() {
-    this.tabs = [];
-    const contentElem = this.content.nativeElement;
-    const codeExamples = Array.from(contentElem.querySelectorAll('code-pane'));
+    ngOnInit() {
+        this.tabs = [];
+        const contentElem = this.content.nativeElement;
+        const codeExamples = Array.from(contentElem.querySelectorAll('code-pane'));
 
-    // Remove DOM nodes that are no longer needed.
-    contentElem.textContent = '';
+        // Remove DOM nodes that are no longer needed.
+        contentElem.textContent = '';
 
-    for (const tabContent of codeExamples) {
-      this.tabs.push(this.getTabInfo(tabContent));
+        for (const tabContent of codeExamples) {
+            this.tabs.push(this.getTabInfo(tabContent));
+        }
     }
-  }
 
-  ngAfterViewInit() {
-    this.codeComponents.toArray().forEach((codeComponent, i) => {
-      codeComponent.code = this.tabs[i].code;
-    });
-  }
+    ngAfterViewInit() {
+        this.codeComponents.toArray().forEach((codeComponent, i) => {
+            codeComponent.code = this.tabs[i].code;
+        });
+    }
 
-  /** Gets the extracted TabInfo data from the provided code-pane element. */
-  private getTabInfo(tabContent: Element): TabInfo {
-    return {
-      class: tabContent.getAttribute('class') || '',
-      code: fromInnerHTML(tabContent),
-      path: tabContent.getAttribute('path') || '',
-      region: tabContent.getAttribute('region') || '',
+    /** Gets the extracted TabInfo data from the provided code-pane element. */
+    private getTabInfo(tabContent: Element): TabInfo {
+        return {
+            class: tabContent.getAttribute('class') || '',
+            code: fromInnerHTML(tabContent),
+            path: tabContent.getAttribute('path') || '',
+            region: tabContent.getAttribute('region') || '',
 
-      header: tabContent.getAttribute('header') || undefined,
-      language: tabContent.getAttribute('language') || undefined,
-      linenums: tabContent.getAttribute('linenums') || this.linenums,
-    };
-  }
+            header: tabContent.getAttribute('header') || undefined,
+            language: tabContent.getAttribute('language') || undefined,
+            linenums: tabContent.getAttribute('linenums') || this.linenums,
+        };
+    }
 }
