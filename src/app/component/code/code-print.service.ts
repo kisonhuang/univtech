@@ -1,67 +1,70 @@
 import {Injectable} from '@angular/core';
-import {htmlFromStringKnownToSatisfyTypeContract} from 'safevalues/unsafe/reviewed';
 
 import {from, Observable} from 'rxjs';
 import {first, map, share} from 'rxjs/operators';
 
-import {Logger} from 'app/shared/logger.service';
+import {htmlFromStringKnownToSatisfyTypeContract} from 'safevalues/unsafe/reviewed';
 
-type PrettyPrintOne = (code: TrustedHTML, language?: string, linenums?: number | boolean) => string;
+import {LogService} from '../../base/log.service';
 
-/**
- * Wrapper around the prettify.js library
- */
+// 代码美化对象
+type PrettyPrintOne = (code: TrustedHTML, language?: string, linenum?: number | boolean) => string;
+
+// 代码打印服务，包装prettify.js库
 @Injectable()
-export class PrettyPrinter {
+export class CodePrintService {
 
+    // 代码美化对象的Observable
     private prettyPrintOne: Observable<PrettyPrintOne>;
 
-    constructor(private logger: Logger) {
+    /**
+     * 构造函数，创建代码打印服务
+     *
+     * @param logService 日志服务
+     */
+    constructor(private logService: LogService) {
         this.prettyPrintOne = from(this.getPrettyPrintOne()).pipe(share());
     }
 
+    /**
+     * 获取代码美化对象
+     *
+     * @return Promise<PrettyPrintOne> 代码美化对象的Promise
+     */
     private getPrettyPrintOne(): Promise<PrettyPrintOne> {
-        const ppo = (window as any).prettyPrintOne;
-        return ppo ? Promise.resolve(ppo) :
-            // `prettyPrintOne` is not on `window`, which means `prettify.js` has not been loaded yet.
-            // Import it; ad a side-effect it will add `prettyPrintOne` on `window`.
-            import('assets/js/prettify.js' as any)
-                .then(
-                    () => (window as any).prettyPrintOne,
-                    err => {
-                        const msg = `Cannot get prettify.js from server: ${err.message}`;
-                        this.logger.error(new Error(msg));
-                        // return a pretty print fn that always fails.
-                        return () => {
-                            throw new Error(msg);
-                        };
-                    });
+        const print = (window as any).prettyPrintOne;
+        return print ? Promise.resolve(print) : import('assets/js/prettify.js' as any).then(
+            () => (window as any).prettyPrintOne,
+            error => {
+                const message = `无法获取prettify.js：${error.message}`;
+                this.logService.error(new Error(message));
+                return () => {
+                    throw new Error(message);
+                };
+            });
     }
 
     /**
-     * Format code snippet as HTML.
+     * 格式化代码片段
      *
-     * @param code - the code snippet to format; should already be HTML encoded
-     * @param [language] - The language of the code to render (could be javascript, html, typescript, etc)
-     * @param [linenums] - Whether to display line numbers:
-     *  - false: don't display
-     *  - true: do display
-     *  - number: do display but start at the given number
-     * @returns Observable<string> - Observable of formatted code
+     * @param code 代码片段
+     * @param language 代码语言，例如：html、javascript、typescript
+     * @param linenum 是否显示行号，false：不显示行号，true：显示行号，number：从给定数字开始显示行号
+     * @return Observable<string> 已格式化代码的Observable
      */
-    formatCode(code: TrustedHTML, language?: string, linenums?: number | boolean) {
+    formatCode(code: TrustedHTML, language?: string, linenum?: number | boolean) {
         return this.prettyPrintOne.pipe(
-            map(ppo => {
+            map(print => {
                 try {
-                    return htmlFromStringKnownToSatisfyTypeContract(
-                        ppo(code, language, linenums), 'prettify.js modifies already trusted HTML inline');
-                } catch (err) {
-                    const msg = `Could not format code that begins '${code.toString().slice(0, 50)}...'.`;
-                    console.error(msg, err);
-                    throw new Error(msg);
+                    return htmlFromStringKnownToSatisfyTypeContract(print(code, language, linenum), 'prettify.js修改时已信任内联HTML');
+                } catch (error) {
+                    const message = `无法格式化代码：'${code.toString().slice(0, 50)}...'`;
+                    console.error(message, error);
+                    throw new Error(message);
                 }
             }),
-            first(),  // complete immediately
+            first(),
         );
     }
+
 }
