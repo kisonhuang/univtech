@@ -1,0 +1,8 @@
+<div class="cookie-popup no-print" *ngIf="!hasAcceptedCookie">
+    <h2 class="visually-hidden">Cookie接受通知</h2>
+    这个网站需要使用Cookie来提供服务和分析流量。
+    <div class="actions">
+        <a mat-button href="https://policies.google.com/technologies/cookies" target="_blank" rel="noopener">了解更多</a>
+        <button mat-button (click)="acceptCookie()">接受Cookie</button>
+    </div>
+</div>

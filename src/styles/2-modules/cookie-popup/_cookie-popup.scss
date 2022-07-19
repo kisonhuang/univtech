@@ -4,8 +4,8 @@
 
 $inner-spacing: 16px;
 
-aio-cookies-popup {
-    .cookies-popup {
+univ-cookie-popup {
+    .cookie-popup {
         @include mat.elevation(6);
         border-radius: 4px;
         bottom: 0;

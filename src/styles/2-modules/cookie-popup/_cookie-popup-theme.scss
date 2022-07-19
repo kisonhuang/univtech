@@ -1,12 +1,13 @@
 @use 'sass:map';
-@use '../../constants' as c;
 @use '~@angular/material' as mat;
+@use '../../constants' as const;
 
 @mixin theme($theme) {
+
     $is-dark-theme: map.get($theme, is-dark);
 
-    aio-cookies-popup {
-        .cookies-popup {
+    univ-cookie-popup {
+        .cookie-popup {
             background: if($is-dark-theme, map.get(mat.$grey-palette, 50), #252525);
             color: if($is-dark-theme,
                 map.get(map.get(mat.$grey-palette, contrast), 50),
@@ -15,13 +16,14 @@
 
             .actions {
                 .mat-button {
-                    color: if($is-dark-theme, c.$blue, c.$lightblue);
+                    color: if($is-dark-theme, const.$blue, const.$lightblue);
 
                     .mat-button-focus-overlay {
-                        background: if($is-dark-theme, c.$black, c.$white);
+                        background: if($is-dark-theme, const.$black, const.$white);
                     }
                 }
             }
         }
     }
+
 }
