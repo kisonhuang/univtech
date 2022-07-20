@@ -4,7 +4,7 @@ import {HttpClient} from '@angular/common/http';
 import {combineLatest, ConnectableObservable, Observable} from 'rxjs';
 import {map, publishLast, publishReplay} from 'rxjs/operators';
 
-import {LocationService} from '../../base/location.service';
+import {LocationService} from '../base/location.service';
 import {UrlPrefixContent} from '../document/document.service';
 
 import {NavigationNode, NavigationResponse, NavigationViews, CurrentNode, CurrentNodes} from './navigation.model';

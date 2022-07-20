@@ -1,7 +1,7 @@
 /* eslint-disable @angular-eslint/no-input-rename */
 import {Component, AfterViewInit, Input, HostBinding, ViewChild, ElementRef} from '@angular/core';
 
-import {convertInnerHTML} from '../../base/security.service';
+import {convertInnerHTML} from '../base/security.service';
 import {CodeComponent} from './code.component';
 
 /**

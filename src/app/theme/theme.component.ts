@@ -1,7 +1,7 @@
 import {DOCUMENT} from '@angular/common';
 import {Component, Inject} from '@angular/core';
 
-import {LocalStorageToken} from '../../base/storage.service';
+import {LocalStorageToken} from '../base/storage.service';
 
 export const StorageKeyTheme = 'storage-key-theme';
 

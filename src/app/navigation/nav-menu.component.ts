@@ -1,5 +1,5 @@
 import {Component, Input} from '@angular/core';
-import {CurrentNode, NavigationNode} from '../navigation/navigation.model';
+import {CurrentNode, NavigationNode} from './navigation.model';
 
 @Component({
     selector: 'univ-nav-menu',

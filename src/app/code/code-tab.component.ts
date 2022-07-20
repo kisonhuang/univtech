@@ -1,6 +1,6 @@
 import {AfterViewInit, Component, ElementRef, Input, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
 
-import {convertInnerHTML} from '../../base/security.service';
+import {convertInnerHTML} from '../base/security.service';
 import {CodeComponent} from './code.component';
 import {CodeTab} from './code-tab.model';
 

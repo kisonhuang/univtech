@@ -1,6 +1,6 @@
 import {Component, Input} from '@angular/core';
 
-import {NavigationNode, VersionInfo} from '../navigation/navigation.service';
+import {NavigationNode, VersionInfo} from './navigation.service';
 
 @Component({
     selector: 'univ-footer',

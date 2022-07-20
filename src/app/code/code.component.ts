@@ -8,8 +8,8 @@ import {tap} from 'rxjs/operators';
 import {unwrapHtmlForSink} from 'safevalues';
 import {htmlFromStringKnownToSatisfyTypeContract} from 'safevalues/unsafe/reviewed';
 
-import {LogService} from '../../base/log.service';
-import {convertOuterHTML} from '../../base/security.service';
+import {LogService} from '../base/log.service';
+import {convertOuterHTML} from '../base/security.service';
 import {CodePrettyService} from './code-pretty.service';
 
 /**

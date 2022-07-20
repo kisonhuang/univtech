@@ -1,6 +1,6 @@
 import {Component, Input, OnChanges} from '@angular/core';
 
-import {NavigationNode} from '../navigation/navigation.model';
+import {NavigationNode} from './navigation.model';
 
 @Component({
     selector: 'univ-nav-item',

@@ -5,7 +5,7 @@ import {share, map, first} from 'rxjs/operators';
 
 import {htmlFromStringKnownToSatisfyTypeContract} from 'safevalues/unsafe/reviewed';
 
-import {LogService} from '../../base/log.service';
+import {LogService} from '../base/log.service';
 
 // 代码美化对象
 type PrettyPrintOne = (code: TrustedHTML, language?: string, linenum?: number | boolean) => string;

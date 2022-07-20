@@ -1,6 +1,6 @@
 import {Component, ElementRef, Input, OnInit} from '@angular/core';
 
-import {LogService} from '../../base/log.service';
+import {LogService} from '../base/log.service';
 import {ElementLoadService} from './element-load.service';
 
 /**

@@ -7,8 +7,8 @@ import {catchError, map, switchMap, tap} from 'rxjs/operators';
 import {htmlEscape} from 'safevalues';
 import {htmlFromStringKnownToSatisfyTypeContract} from 'safevalues/unsafe/reviewed';
 
-import {LogService} from '../../base/log.service';
-import {LocationService} from '../../base/location.service';
+import {LogService} from '../base/log.service';
+import {LocationService} from '../base/location.service';
 
 import {DocumentSafe, DocumentUnsafe} from './document.model';
 

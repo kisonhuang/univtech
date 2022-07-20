@@ -4,12 +4,12 @@ import {asapScheduler, Observable, of, timer} from 'rxjs';
 import {catchError, observeOn, switchMap, takeUntil, tap} from 'rxjs/operators';
 import {EMPTY_HTML, unwrapHtmlForSink} from 'safevalues';
 
-import {LogService} from '../../base/log.service';
-import {convertInnerHTML} from '../../base/security.service';
-import {TocService} from '../../base/toc.service';
+import {LogService} from '../base/log.service';
+import {convertInnerHTML} from '../base/security.service';
+import {TocService} from '../base/toc.service';
 import {ElementsLoader} from 'app/custom-elements/elements-loader';
-import {DocumentSafe} from '../document/document.model';
-import {DocNotFoundId, DocFetchErrorId} from '../document/document.service';
+import {DocumentSafe} from './document.model';
+import {DocNotFoundId, DocFetchErrorId} from './document.service';
 
 export const NO_ANIMATIONS = 'no-animations';
 
