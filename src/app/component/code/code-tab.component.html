@@ -1,4 +1,4 @@
-<!-- Use content projection so that the provided HTML's code-panes can be split into tabs -->
+<!-- 使用内容投影，这样提供的HTML代码面板才能拆分为选项卡 -->
 <div #content style="display: none">
     <ng-content></ng-content>
 </div>
@@ -9,13 +9,13 @@
             <ng-template mat-tab-label>
                 <span class="{{ tab.class }}">{{ tab.header }}</span>
             </ng-template>
-            <aio-code class="{{ tab.class }}"
+            <univ-code class="{{ tab.class }}"
                       [language]="tab.language"
-                      [linenums]="tab.linenums"
+                      [linenum]="tab.linenum"
                       [path]="tab.path"
                       [region]="tab.region"
                       [header]="tab.header">
-            </aio-code>
+            </univ-code>
         </mat-tab>
     </mat-tab-group>
 </mat-card>

@@ -1,15 +1,15 @@
-<!-- Content projection is used to get the content HTML provided to this component -->
+<!-- 内容投影用于获取组件的HTML内容 -->
 <div #content style="display: none">
     <ng-content></ng-content>
 </div>
 
 <header *ngIf="header">{{header}}</header>
 
-<aio-code [ngClass]="classes"
-          [language]="language"
-          [linenums]="linenums"
-          [path]="path"
-          [region]="region"
-          [hideCopy]="hidecopy"
-          [header]="header">
-</aio-code>
+<univ-code [ngClass]="classes"
+           [header]="header"
+           [language]="language"
+           [linenum]="linenum"
+           [path]="path"
+           [region]="region"
+           [showCopy]="showcopy">
+</univ-code>

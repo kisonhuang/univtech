@@ -53,7 +53,7 @@ export class CodeComponent implements OnChanges {
     // 代码显示区域
     @Input() region: string;
 
-    // 是否显示复制按钮
+    // 是否显示复制按钮，true：显示复制按钮，false：不显示复制按钮
     @Input() showCopy: boolean;
 
     // 代码格式化完成事件

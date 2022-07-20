@@ -12,7 +12,7 @@ export interface TabInfo {
 
     header?: string;
     language?: string;
-    linenums?: string;
+    linenum?: string;
 }
 
 /**
@@ -20,7 +20,7 @@ export interface TabInfo {
  *
  * The innerHTML of the `<code-tabs>` component should contain `<code-pane>` elements.
  * Each `<code-pane>` has the same interface as the embedded `<code-example>` component.
- * The optional `linenums` attribute is the default `linenums` for each code pane.
+ * The optional `linenum` attribute is the default `linenum` for each code pane.
  */
 @Component({
     selector: 'code-tabs',
@@ -29,7 +29,7 @@ export interface TabInfo {
 export class CodeTabComponent implements OnInit, AfterViewInit {
     tabs: TabInfo[];
 
-    @Input() linenums: string | undefined;
+    @Input() linenum: string | undefined;
 
     @ViewChild('content', {static: true}) content: ElementRef<HTMLDivElement>;
 
@@ -64,7 +64,7 @@ export class CodeTabComponent implements OnInit, AfterViewInit {
 
             header: tabContent.getAttribute('header') || undefined,
             language: tabContent.getAttribute('language') || undefined,
-            linenums: tabContent.getAttribute('linenums') || this.linenums,
+            linenum: tabContent.getAttribute('linenum') || this.linenum,
         };
     }
 
