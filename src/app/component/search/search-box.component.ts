@@ -1,7 +1,7 @@
-import { AfterViewInit, Component, ViewChild, ElementRef, EventEmitter, Output } from '@angular/core';
-import { LocationService } from 'app/shared/location.service';
-import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import {AfterViewInit, Component, ViewChild, ElementRef, EventEmitter, Output} from '@angular/core';
+import {LocationService} from 'app/shared/location.service';
+import {Subject} from 'rxjs';
+import {debounceTime, distinctUntilChanged} from 'rxjs/operators';
 
 /**
  * This component provides a text box to type a search query that will be sent to the SearchService.
@@ -14,64 +14,70 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
  *
  */
 @Component({
-  selector: 'aio-search-box',
-  template: `
-  <input #searchBox
-    type="search"
-    aria-label="search"
-    placeholder="Search"
-    (input)="doSearch()"
-    (keyup)="doSearch()"
-    (focus)="doFocus()"
-    (click)="doSearch()">
-  <mat-icon
-    *ngIf="searchBox.value"
-    (click)="searchBox.value = ''; searchBox.focus()">
-    close
-  </mat-icon>
-  `
+    selector: 'aio-search-box',
+    template: `
+        <input #searchBox
+               type="search"
+               aria-label="search"
+               placeholder="Search"
+               (input)="doSearch()"
+               (keyup)="doSearch()"
+               (focus)="doFocus()"
+               (click)="doSearch()">
+        <mat-icon
+            *ngIf="searchBox.value"
+            (click)="searchBox.value = ''; searchBox.focus()">
+            close
+        </mat-icon>
+    `
 })
 export class SearchBoxComponent implements AfterViewInit {
 
-  private searchDebounce = 300;
-  private searchSubject = new Subject<string>();
+    private searchDebounce = 300;
+    private searchSubject = new Subject<string>();
 
-  @ViewChild('searchBox', { static: true }) searchBox: ElementRef;
-  // eslint-disable-next-line @angular-eslint/no-output-on-prefix
-  @Output() onSearch = this.searchSubject.pipe(distinctUntilChanged(), debounceTime(this.searchDebounce));
-  // eslint-disable-next-line @angular-eslint/no-output-on-prefix
-  @Output() onFocus = new EventEmitter<string>();
+    @ViewChild('searchBox', {static: true}) searchBox: ElementRef;
+    // eslint-disable-next-line @angular-eslint/no-output-on-prefix
+    @Output() onSearch = this.searchSubject.pipe(distinctUntilChanged(), debounceTime(this.searchDebounce));
+    // eslint-disable-next-line @angular-eslint/no-output-on-prefix
+    @Output() onFocus = new EventEmitter<string>();
 
-  constructor(private locationService: LocationService) { }
-
-  /**
-   * When we first show this search box we trigger a search if there is a search query in the URL
-   */
-  ngAfterViewInit() {
-    const query = this.locationService.search().search;
-    if (query) {
-      this.query = this.decodeQuery(query);
-      this.doSearch();
+    constructor(private locationService: LocationService) {
     }
-  }
 
-  doSearch() {
-    this.searchSubject.next(this.query);
-  }
+    /**
+     * When we first show this search box we trigger a search if there is a search query in the URL
+     */
+    ngAfterViewInit() {
+        const query = this.locationService.search().search;
+        if (query) {
+            this.query = this.decodeQuery(query);
+            this.doSearch();
+        }
+    }
 
-  doFocus() {
-    this.onFocus.emit(this.query);
-  }
+    doSearch() {
+        this.searchSubject.next(this.query);
+    }
 
-  focus() {
-    this.searchBox.nativeElement.focus();
-  }
+    doFocus() {
+        this.onFocus.emit(this.query);
+    }
 
-  private decodeQuery(query: string): string {
-    // `decodeURIComponent` does not handle `+` for spaces, replace via RexEx.
-    return query.replace(/\+/g, ' ');
-  }
+    focus() {
+        this.searchBox.nativeElement.focus();
+    }
 
-  private get query() { return this.searchBox.nativeElement.value; }
-  private set query(value: string) { this.searchBox.nativeElement.value = value; }
+    private decodeQuery(query: string): string {
+        // `decodeURIComponent` does not handle `+` for spaces, replace via RexEx.
+        return query.replace(/\+/g, ' ');
+    }
+
+    private get query() {
+        return this.searchBox.nativeElement.value;
+    }
+
+    private set query(value: string) {
+        this.searchBox.nativeElement.value = value;
+    }
 }
