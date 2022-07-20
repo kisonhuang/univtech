@@ -1,4 +1,4 @@
-import {Component, OnChanges, Input, Output, ViewChild, EventEmitter, ElementRef} from '@angular/core';
+import {Component, OnChanges, Input, Output, EventEmitter, ViewChild, ElementRef} from '@angular/core';
 import {Clipboard} from '@angular/cdk/clipboard';
 import {MatSnackBar} from '@angular/material/snack-bar';
 
@@ -13,91 +13,105 @@ import {convertOuterHTML} from '../../base/security.service';
 import {CodePrettyService} from './code-pretty.service';
 
 /**
- * Formatted Code Block
- *
- * Pretty renders a code block, used in the docs and API reference by the code-example and
- * code-tabs embedded components.
- * It includes a "copy" button that will send the content to the clipboard when clicked
- *
- * Example usage:
- *
+ * 已格式化代码组件，用法如下：
  * ```
- * <aio-code
- *   [language]="ts"
- *   [linenums]="true"
- *   [path]="router/src/app/app.module.ts"
- *   [region]="animations-module">
- * </aio-code>
+ * <univ-code
+ *     [language]="ts"
+ *     [linenum]="true"
+ *     [path]="router/src/app/app.module.ts"
+ *     [region]="animations-module">
+ * </univ-code>
  * ```
- *
- *
- * Renders code provided through the `updateCode` method.
  */
 @Component({
     selector: 'univ-code',
     templateUrl: './code.component.html'
 })
 export class CodeComponent implements OnChanges {
+
+    // ARIA标签
     ariaLabel = '';
 
-    /** The code to be copied when clicking the copy button, this should not be HTML encoded */
+    // 代码HTML，视图中显示的当前输入的已格式化代码
+    _codeHtml: TrustedHTML;
+
+    // 代码文本，点击复制按钮时复制的非HTML编码代码
     private codeText: string;
 
-    /** Code that should be formatted with current inputs and displayed in the view. */
-    set code(code: TrustedHTML) {
-        this._code = code;
+    // 代码标题，显示在代码上方
+    private _header: string | undefined;
 
-        if (!this._code.toString().trim()) {
-            this.showMissingCodeMessage();
+    // 代码语言：javascript、typescript
+    @Input() language: string | undefined;
+
+    // 是否显示行号，number或'number'：从这个数字开始显示行号，true或'true'：显示行号，false或'false'：不显示行号
+    @Input() linenum: boolean | number | string | undefined;
+
+    // 代码路径
+    @Input() path: string;
+
+    // 代码显示区域
+    @Input() region: string;
+
+    // 是否显示复制按钮
+    @Input() shownCopy: boolean;
+
+    // 代码格式化完成事件
+    @Output() codeFormatted = new EventEmitter<void>();
+
+    // 模板中的元素，用于显示已格式化代码
+    @ViewChild('codeContainer', {static: true}) codeContainer: ElementRef;
+
+    /**
+     * 获取可信任的代码HTML
+     *
+     * @return TrustedHTML 可信任的代码HTML
+     */
+    get codeHtml(): TrustedHTML {
+        return this._codeHtml;
+    }
+
+    /**
+     * 设置可信任的代码HTML
+     *
+     * @param codeHtml 可信任的代码HTML
+     */
+    set codeHtml(codeHtml: TrustedHTML) {
+        this._codeHtml = codeHtml;
+        if (!this._codeHtml.toString().trim()) {
+            this.showCodeMissing();
         } else {
-            this.formatDisplayedCode();
+            this.formatCodeHtml();
         }
     }
 
-    get code(): TrustedHTML {
-        return this._code;
-    }
-
-    _code: TrustedHTML;
-
-    /** Whether the copy button should be shown. */
-    @Input() hideCopy: boolean;
-
-    /** Language to render the code (e.g. javascript, dart, typescript). */
-    @Input() language: string | undefined;
-
     /**
-     * Whether to display line numbers:
-     *  - If false: hide
-     *  - If true: show
-     *  - If number: show but start at that number
+     * 获取代码标题
+     *
+     * @return string或undefined 代码标题
      */
-    @Input() linenums: boolean | number | string | undefined;
-
-    /** Path to the source of the code. */
-    @Input() path: string;
-
-    /** Region of the source of the code being displayed. */
-    @Input() region: string;
-
-    /** Optional header to be displayed above the code. */
-    @Input()
-    set header(header: string | undefined) {
-        this._header = header;
-        this.ariaLabel = this.header ? `Copy code snippet from ${this.header}` : '';
-    }
-
     get header(): string | undefined {
         return this._header;
     }
 
-    private _header: string | undefined;
+    /**
+     * 设置代码标题
+     *
+     * @param header 代码标题
+     */
+    @Input() set header(header: string | undefined) {
+        this._header = header;
+        this.ariaLabel = this.header ? `复制代码：${this.header}` : '';
+    }
 
-    @Output() codeFormatted = new EventEmitter<void>();
-
-    /** The element in the template that will display the formatted code. */
-    @ViewChild('codeContainer', {static: true}) codeContainer: ElementRef;
-
+    /**
+     * 构造函数，创建已格式化代码组件
+     *
+     * @param clipboard 剪贴板
+     * @param matSnackBar 提示信息栏
+     * @param logService 日志服务
+     * @param codePrettyService 代码美化服务
+     */
     constructor(private clipboard: Clipboard,
                 private matSnackBar: MatSnackBar,
                 private logService: LogService,
@@ -105,101 +119,126 @@ export class CodeComponent implements OnChanges {
 
     }
 
+    /**
+     * 数据绑定属性发生改变时的回调方法
+     */
     ngOnChanges() {
-        // If some inputs have changed and there is code displayed, update the view with the latest
-        // formatted code.
-        if (this.code) {
-            this.formatDisplayedCode();
+        if (this._codeHtml) {
+            this.formatCodeHtml();
         }
     }
 
-    private formatDisplayedCode() {
-        const linenums = this.getLinenums();
-        const leftAlignedCode = leftAlign(this.code);
-        this.setCodeHtml(leftAlignedCode); // start with unformatted code
-        this.codeText = this.getCodeText(); // store the unformatted code as text (for copying)
+    /**
+     * 格式化已显示代码
+     */
+    private formatCodeHtml() {
+        const linenum = this.getLinenum();
+        const alignedCode = alignLeft(this._codeHtml);
+        this.setCodeHtml(alignedCode);
+        this.codeText = this.getCodeText();
 
         const skipPrettify = of(undefined);
-        const prettifyCode = this.codePrettyService
-            .formatCode(leftAlignedCode, this.language, linenums)
-            .pipe(tap(formattedCode => this.setCodeHtml(formattedCode)));
+        const prettyCode = this.codePrettyService.formatCode(alignedCode, this.language, linenum).pipe(tap(formattedCode => this.setCodeHtml(formattedCode)));
 
-        if (linenums !== false && this.language === 'none') {
-            this.logService.warn("Using 'linenums' with 'language: none' is currently not supported.");
+        if (this.language === 'none' && linenum !== false) {
+            this.logService.warn('不支持：language=none并且linenum!=false');
         }
 
-        ((this.language === 'none' ? skipPrettify : prettifyCode) as Observable<unknown>)
-            .subscribe({
-                next: () => this.codeFormatted.emit(),
-                error: () => { /* ignore failure to format */
-                },
-            });
+        ((this.language === 'none' ? skipPrettify : prettyCode) as Observable<unknown>).subscribe({
+            next: () => this.codeFormatted.emit(),
+            error: () => {
+
+            },
+        });
     }
 
-    /** Sets the message showing that the code could not be found. */
-    private showMissingCodeMessage() {
+    /**
+     * 显示示例代码缺失信息
+     */
+    private showCodeMissing() {
         const src = this.path ? this.path + (this.region ? '#' + this.region : '') : '';
-        const msg = `The code sample is missing${src ? ` for\n${src}` : '.'}`;
-        const el = document.createElement('p');
-        el.className = 'code-missing';
-        el.textContent = msg;
-        this.setCodeHtml(convertOuterHTML(el));
+        const paraElement = document.createElement('p');
+        paraElement.className = 'code-missing';
+        paraElement.textContent = `缺失示例代码${src ? `\n${src}` : '。'}`;
+        this.setCodeHtml(convertOuterHTML(paraElement));
     }
 
-    /** Sets the innerHTML of the code container to the provided code string. */
-    private setCodeHtml(formattedCode: TrustedHTML) {
-        // **Security:** Code example content is provided by docs authors and as such its considered to
-        // be safe for innerHTML purposes.
-        this.codeContainer.nativeElement.innerHTML = unwrapHtmlForSink(formattedCode);
+    /**
+     * 设置可信任的代码HTML
+     *
+     * @param codeHtml 已可信任的代码HTML
+     */
+    private setCodeHtml(codeHtml: TrustedHTML) {
+        this.codeContainer.nativeElement.innerHTML = unwrapHtmlForSink(codeHtml);
     }
 
-    /** Gets the textContent of the displayed code element. */
+    /**
+     * 获取代码文本
+     */
     private getCodeText() {
-        // `prettify` may remove newlines, e.g. when `linenums` are on. Retrieve the content of the
-        // container as text, before prettifying it.
-        // We take the textContent because we don't want it to be HTML encoded.
         return this.codeContainer.nativeElement.textContent;
     }
 
-    /** Copies the code snippet to the user's clipboard. */
-    doCopy() {
-        const code = this.codeText;
-        const successfullyCopied = this.clipboard.copy(code);
+    /**
+     * 获取行号
+     *
+     * @return number或boolean number：从这个数字开始显示行号，true：显示行号，false：不显示行号
+     */
+    getLinenum() {
+        const linenum = this.getLinenumValue();
+        return (linenum != null) && !isNaN(linenum as number) && linenum;
+    }
 
-        if (successfullyCopied) {
-            this.logService.log('Copied code to clipboard:', code);
-            this.matSnackBar.open('Code Copied', '', {duration: 800});
+    /**
+     * 获取行号
+     *
+     * @return number或boolean number：从这个数字开始显示行号，true：显示行号，false：不显示行号
+     */
+    private getLinenumValue() {
+        if (typeof this.linenum === 'boolean') {
+            return this.linenum;
+        } else if (this.linenum === 'true') {
+            return true;
+        } else if (this.linenum === 'false') {
+            return false;
+        } else if (typeof this.linenum === 'string') {
+            return parseInt(this.linenum, 10);
         } else {
-            this.logService.error(new Error(`ERROR copying code to clipboard: "${code}"`));
-            this.matSnackBar.open('Copy failed. Please try again!', '', {duration: 800});
+            return this.linenum;
         }
     }
 
-    /** Gets the calculated value of linenums (boolean/number). */
-    getLinenums() {
-        const linenums =
-            typeof this.linenums === 'boolean' ? this.linenums :
-                this.linenums === 'true' ? true :
-                    this.linenums === 'false' ? false :
-                        typeof this.linenums === 'string' ? parseInt(this.linenums, 10) :
-                            this.linenums;
-
-        return (linenums != null) && !isNaN(linenums as number) && linenums;
+    /**
+     * 复制代码
+     */
+    copyCode() {
+        const code = this.codeText;
+        const result = this.clipboard.copy(code);
+        if (result) {
+            this.logService.log('代码复制成功：', code);
+            this.matSnackBar.open('代码复制成功', '', {duration: 800});
+        } else {
+            this.logService.error(new Error(`代码复制失败："${code}"`));
+            this.matSnackBar.open('代码复制失败', '', {duration: 800});
+        }
     }
+
 }
 
-function leftAlign(text: TrustedHTML): TrustedHTML {
+/**
+ * 左对齐HTML
+ *
+ * @param codeHtml 可信任的代码HTML
+ * @return TrustedHTML 可信任的代码HTML
+ */
+function alignLeft(codeHtml: TrustedHTML): TrustedHTML {
     let indent = Number.MAX_VALUE;
-
-    const lines = text.toString().split('\n');
+    const lines = codeHtml.toString().split('\n');
     lines.forEach(line => {
         const lineIndent = line.search(/\S/);
         if (lineIndent !== -1) {
             indent = Math.min(lineIndent, indent);
         }
     });
-
-    return htmlFromStringKnownToSatisfyTypeContract(
-        lines.map(line => line.slice(indent)).join('\n').trim(),
-        'safe manipulation of existing trusted HTML');
+    return htmlFromStringKnownToSatisfyTypeContract(lines.map(line => line.slice(indent)).join('\n').trim(), '现有可信任HTML的安全操作');
 }

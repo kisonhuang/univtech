@@ -1,9 +1,9 @@
 <pre class="prettyprint lang-{{language}}">
-    <button *ngIf="!hideCopy"
+    <button *ngIf="shownCopy"
             class="material-icons copy-button no-print"
-            title="Copy code snippet"
+            title="复制代码"
             [attr.aria-label]="ariaLabel"
-            (click)="doCopy()">
+            (click)="copyCode()">
         <span aria-hidden="true">content_copy</span>
     </button>
     <code class="animated fadeIn" #codeContainer></code>

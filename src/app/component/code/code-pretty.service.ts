@@ -49,7 +49,7 @@ export class CodePrettyService {
      *
      * @param code 代码片段
      * @param language 代码语言，例如：html、javascript、typescript
-     * @param linenum 是否显示行号，number：从给定数字开始显示行号，true：显示行号，false：不显示行号
+     * @param linenum 是否显示行号，number：从这个数字开始显示行号，true：显示行号，false：不显示行号
      * @return Observable<string> 已格式化代码的Observable
      */
     formatCode(code: TrustedHTML, language?: string, linenum?: number | boolean) {
