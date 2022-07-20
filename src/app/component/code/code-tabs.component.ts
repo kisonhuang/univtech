@@ -1,6 +1,7 @@
 /* eslint-disable  @angular-eslint/component-selector */
 import {AfterViewInit, Component, ElementRef, Input, OnInit, QueryList, ViewChild, ViewChildren} from '@angular/core';
-import {fromInnerHTML} from 'app/shared/security';
+
+import {convertInnerHTML} from '../../base/security.service';
 import {CodeComponent} from './code.component';
 
 export interface TabInfo {
@@ -71,7 +72,7 @@ export class CodeTabsComponent implements OnInit, AfterViewInit {
 
     ngAfterViewInit() {
         this.codeComponents.toArray().forEach((codeComponent, i) => {
-            codeComponent.code = this.tabs[i].code;
+            codeComponent.codeHtml = this.tabs[i].code;
         });
     }
 
@@ -79,7 +80,7 @@ export class CodeTabsComponent implements OnInit, AfterViewInit {
     private getTabInfo(tabContent: Element): TabInfo {
         return {
             class: tabContent.getAttribute('class') || '',
-            code: fromInnerHTML(tabContent),
+            code: convertInnerHTML(tabContent),
             path: tabContent.getAttribute('path') || '',
             region: tabContent.getAttribute('region') || '',
 
@@ -88,4 +89,5 @@ export class CodeTabsComponent implements OnInit, AfterViewInit {
             linenums: tabContent.getAttribute('linenums') || this.linenums,
         };
     }
+
 }
