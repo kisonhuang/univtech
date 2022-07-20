@@ -5,16 +5,16 @@
 
 <mat-card>
     <mat-tab-group class="code-tab-group" [disableRipple]="true">
-        <mat-tab style="overflow-y: hidden;" *ngFor="let tab of tabs">
+        <mat-tab style="overflow-y: hidden;" *ngFor="let codeTab of codeTabs">
             <ng-template mat-tab-label>
-                <span class="{{ tab.class }}">{{ tab.header }}</span>
+                <span class="{{ codeTab.class }}">{{ codeTab.header }}</span>
             </ng-template>
-            <univ-code class="{{ tab.class }}"
-                      [language]="tab.language"
-                      [linenum]="tab.linenum"
-                      [path]="tab.path"
-                      [region]="tab.region"
-                      [header]="tab.header">
+            <univ-code class="{{ codeTab.class }}"
+                       [header]="codeTab.header"
+                       [language]="codeTab.language"
+                       [linenum]="codeTab.linenum"
+                       [path]="codeTab.path"
+                       [region]="codeTab.region">
             </univ-code>
         </mat-tab>
     </mat-tab-group>

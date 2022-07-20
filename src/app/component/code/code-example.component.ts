@@ -1,5 +1,5 @@
 /* eslint-disable @angular-eslint/no-input-rename */
-import {Component, HostBinding, ElementRef, ViewChild, Input, AfterViewInit} from '@angular/core';
+import {Component, AfterViewInit, Input, HostBinding, ViewChild, ElementRef} from '@angular/core';
 
 import {convertInnerHTML} from '../../base/security.service';
 import {CodeComponent} from './code.component';
@@ -10,6 +10,8 @@ import {CodeComponent} from './code.component';
  * <univ-code-example header="打印日志" language="typescript" linenum="true">
  * console.log('打印日志');
  * </univ-code-example>
+ * 或者：
+ * <univ-code-example header="" path="" region=""></univ-code-example>
  * ```
  */
 @Component({
@@ -43,10 +45,10 @@ export class CodeExampleComponent implements AfterViewInit {
     @HostBinding('class.avoidFile') isAvoid = false;
 
     // 代码内容
-    @ViewChild('content', {static: true}) content: ElementRef<HTMLDivElement>;
+    @ViewChild('content', {static: true}) contentElement: ElementRef<HTMLDivElement>;
 
     // 代码组件
-    @ViewChild(CodeComponent, {static: true}) univCode: CodeComponent;
+    @ViewChild(CodeComponent, {static: true}) codeComponent: CodeComponent;
 
     /**
      * 获取代码标题
@@ -126,8 +128,8 @@ export class CodeExampleComponent implements AfterViewInit {
      * 组件视图初始化完成之后的回调方法
      */
     ngAfterViewInit() {
-        const contentElement = this.content.nativeElement;
-        this.univCode.codeHtml = convertInnerHTML(contentElement);
+        const contentElement = this.contentElement.nativeElement;
+        this.codeComponent.codeHtml = convertInnerHTML(contentElement);
         contentElement.textContent = '';
     }
 
