@@ -7,35 +7,6 @@ const SEARCH_TERMS_URL = '/generated/docs/app/search-data.json';
 let index: lunr.Index;
 const pageMap: SearchInfo = {};
 
-interface SearchInfo {
-    [key: string]: PageInfo;
-}
-
-interface PageInfo {
-    path: string;
-    type: string;
-    title: string;
-    headings: string;
-    keywords: string;
-    members: string;
-    topics: string;
-}
-
-interface EncodedPages {
-    dictionary: string;
-    pages: EncodedPage[];
-}
-
-interface EncodedPage {
-    path: string;
-    type: string;
-    title: string;
-    headings: number[];
-    keywords: number[];
-    members: number[];
-    topics: string;
-}
-
 addEventListener('message', handleMessage);
 
 // Create the lunr index - the docs should be an array of objects, each object containing
