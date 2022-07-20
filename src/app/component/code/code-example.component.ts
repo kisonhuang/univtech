@@ -17,23 +17,7 @@ import {CodeComponent} from './code.component';
  */
 @Component({
     selector: 'code-example',
-    template: `
-        <!-- Content projection is used to get the content HTML provided to this component -->
-        <div #content style="display: none">
-            <ng-content></ng-content>
-        </div>
-
-        <header *ngIf="header">{{header}}</header>
-
-        <aio-code [ngClass]="classes"
-                  [language]="language"
-                  [linenums]="linenums"
-                  [path]="path"
-                  [region]="region"
-                  [hideCopy]="hidecopy"
-                  [header]="header">
-        </aio-code>
-    `,
+    templateUrl: './code-example.component.html',
 })
 export class CodeExampleComponent implements AfterViewInit {
     classes: { 'headed-code': boolean, 'simple-code': boolean };

@@ -24,31 +24,9 @@ export interface TabInfo {
  */
 @Component({
     selector: 'code-tabs',
-    template: `
-        <!-- Use content projection so that the provided HTML's code-panes can be split into tabs -->
-        <div #content style="display: none">
-            <ng-content></ng-content>
-        </div>
-
-        <mat-card>
-            <mat-tab-group class="code-tab-group" [disableRipple]="true">
-                <mat-tab style="overflow-y: hidden;" *ngFor="let tab of tabs">
-                    <ng-template mat-tab-label>
-                        <span class="{{ tab.class }}">{{ tab.header }}</span>
-                    </ng-template>
-                    <aio-code class="{{ tab.class }}"
-                              [language]="tab.language"
-                              [linenums]="tab.linenums"
-                              [path]="tab.path"
-                              [region]="tab.region"
-                              [header]="tab.header">
-                    </aio-code>
-                </mat-tab>
-            </mat-tab-group>
-        </mat-card>
-    `,
+    templateUrl: './code-tab.component.html',
 })
-export class CodeTabsComponent implements OnInit, AfterViewInit {
+export class CodeTabComponent implements OnInit, AfterViewInit {
     tabs: TabInfo[];
 
     @Input() linenums: string | undefined;
