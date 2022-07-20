@@ -54,7 +54,7 @@ export class CodeComponent implements OnChanges {
     @Input() region: string;
 
     // 是否显示复制按钮
-    @Input() shownCopy: boolean;
+    @Input() showCopy: boolean;
 
     // 代码格式化完成事件
     @Output() codeFormatted = new EventEmitter<void>();
