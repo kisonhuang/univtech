@@ -3,7 +3,7 @@ import {CommonModule} from '@angular/common';
 import {MatCardModule} from '@angular/material/card';
 import {MatTabsModule} from '@angular/material/tabs';
 
-import {ElementModule} from '../element/element-registry.service';
+import {ElementComponentModule} from '../element/element-registry.service';
 import {CodeModule} from './code.module';
 import {CodeTabComponent} from './code-tab.component';
 
@@ -15,7 +15,7 @@ import {CodeTabComponent} from './code-tab.component';
     imports: [CommonModule, MatCardModule, MatTabsModule, CodeModule],
     exports: [CodeTabComponent],
 })
-export class CodeTabModule implements ElementModule {
+export class CodeTabModule implements ElementComponentModule {
 
     elementComponent: Type<any> = CodeTabComponent;
 

@@ -1,7 +1,7 @@
 import {NgModule, Type} from '@angular/core';
 import {CommonModule} from '@angular/common';
 
-import {ElementModule} from '../element/element-registry.service';
+import {ElementComponentModule} from '../element/element-registry.service';
 import {CodeExampleComponent} from './code-example.component';
 import {CodeModule} from './code.module';
 
@@ -13,7 +13,7 @@ import {CodeModule} from './code.module';
     imports: [CommonModule, CodeModule],
     exports: [CodeExampleComponent],
 })
-export class CodeExampleModule implements ElementModule {
+export class CodeExampleModule implements ElementComponentModule {
 
     elementComponent: Type<any> = CodeExampleComponent;
 

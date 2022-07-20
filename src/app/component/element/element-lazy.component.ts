@@ -39,7 +39,7 @@ export class ElementLazyComponent implements OnInit {
 
         this.elementRef.nativeElement.textContent = '';
         this.elementRef.nativeElement.appendChild(document.createElement(this.selector));
-        this.elementLoadService.loadElementModule(this.selector);
+        this.elementLoadService.loadElementComponentModule(this.selector);
     }
 
 }
