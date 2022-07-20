@@ -21,14 +21,41 @@ export class CodeExampleComponent implements AfterViewInit {
     // 样式：有标题代码，简单代码
     classes: { 'headed-code': boolean, 'simple-code': boolean };
 
+    // 代码标题，显示在代码上方
+    private _header: string;
+
     // 代码语言：javascript、typescript
     @Input() language: string;
 
     // 是否显示行号，'number'：从这个数字开始显示行号，'true'：显示行号，'false'：不显示行号
     @Input() linenum: string;
 
+    // 代码路径
+    private _path = '';
+
     // 代码显示区域
     @Input() region: string;
+
+    // 是否显示复制按钮，true：显示复制按钮，false：不显示复制按钮
+    private _showcopy: boolean;
+
+    // 是否避免文件
+    @HostBinding('class.avoidFile') isAvoid = false;
+
+    // 代码内容
+    @ViewChild('content', {static: true}) content: ElementRef<HTMLDivElement>;
+
+    // 代码组件
+    @ViewChild(CodeComponent, {static: true}) univCode: CodeComponent;
+
+    /**
+     * 获取代码标题
+     *
+     * @return string 代码标题
+     */
+    get header(): string {
+        return this._header;
+    }
 
     /**
      * 设置代码标题
@@ -41,16 +68,13 @@ export class CodeExampleComponent implements AfterViewInit {
     }
 
     /**
-     * 获取代码标题
+     * 获取代码路径
      *
-     * @return string 代码标题
+     * @return string 代码路径
      */
-    get header(): string {
-        return this._header;
+    get path(): string {
+        return this._path;
     }
-
-    // 代码标题，显示在代码上方
-    private _header: string;
 
     /**
      * 设置代码路径
@@ -63,16 +87,13 @@ export class CodeExampleComponent implements AfterViewInit {
     }
 
     /**
-     * 获取代码路径
+     * 获取是否显示复制按钮
      *
-     * @return string 代码路径
+     * @return boolean 显示复制按钮
      */
-    get path(): string {
-        return this._path;
+    get showcopy(): boolean {
+        return this._showcopy;
     }
-
-    // 代码路径
-    private _path = '';
 
     /**
      * 设置是否显示复制按钮
@@ -84,16 +105,13 @@ export class CodeExampleComponent implements AfterViewInit {
     }
 
     /**
-     * 获取是否显示复制按钮
+     * 设置是否显示复制按钮
      *
-     * @return boolean 显示复制按钮
+     * @param showcopy 是否显示复制按钮
      */
-    get showcopy(): boolean {
-        return this._showcopy;
+    @Input('showCopy') set showCopyCapitalized(showcopy: boolean) {
+        this.showcopy = showcopy;
     }
-
-    // 是否显示复制按钮，true：显示复制按钮，false：不显示复制按钮
-    private _showcopy: boolean;
 
     /**
      * 设置是否显示复制按钮
@@ -103,24 +121,6 @@ export class CodeExampleComponent implements AfterViewInit {
     @Input('show-copy') set showCopyHyphenated(showcopy: boolean) {
         this.showcopy = showcopy;
     }
-
-    /**
-     * 设置是否显示复制按钮
-     *
-     * @param showcopy 是否显示复制按钮
-     */
-    @Input('showCopy') set showCopyCapitalized(showcopy: boolean) {
-        this.showcopy = showcopy;
-    }
-
-    // 是否避免文件
-    @HostBinding('class.avoidFile') isAvoid = false;
-
-    // 代码内容
-    @ViewChild('content', {static: true}) content: ElementRef<HTMLDivElement>;
-
-    // 代码组件
-    @ViewChild(CodeComponent, {static: true}) univCode: CodeComponent;
 
     /**
      * 组件视图初始化完成之后的回调方法
