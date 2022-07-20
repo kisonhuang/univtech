@@ -3,17 +3,20 @@ import {CommonModule} from '@angular/common';
 import {MatCardModule} from '@angular/material/card';
 import {MatTabsModule} from '@angular/material/tabs';
 
-import {WithCustomElementComponent} from '../element/element-registry.service';
+import {ElementComponentModule} from '../element/element-registry.service';
 import {CodeModule} from './code.module';
 import {CodeTabComponent} from './code-tab.component';
 
+/**
+ * 代码选项卡模块
+ */
 @NgModule({
     declarations: [CodeTabComponent],
     imports: [CommonModule, MatCardModule, MatTabsModule, CodeModule],
-    exports: [CodeTabComponent]
+    exports: [CodeTabComponent],
 })
-export class CodeTabsModule implements WithCustomElementComponent {
+export class CodeTabsModule implements ElementComponentModule {
 
-    customElementComponent: Type<any> = CodeTabComponent;
+    elementComponent: Type<any> = CodeTabComponent;
 
 }
