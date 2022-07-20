@@ -34,7 +34,7 @@ export class CodeTabComponent implements OnInit, AfterViewInit {
     @ViewChildren(CodeComponent) codeComponents: QueryList<CodeComponent>;
 
     /**
-     * 数据绑定属性初始化完成之后的回调方法
+     * 数据绑定属性初始化之后的回调方法
      */
     ngOnInit() {
         this.codeTabs = [];

@@ -4,7 +4,7 @@ import {LoadChildrenCallback} from '@angular/router';
 
 import {from, Observable, of} from 'rxjs';
 
-import {ELEMENT_MODULE_LOAD_CALLBACKS_TOKEN, WithCustomElementComponent} from './element-registry.service';
+import {ElementModuleToken, ElementModule} from './element-registry.service';
 
 
 @Injectable()
@@ -15,7 +15,7 @@ export class ElementLoadService {
     private elementsLoading = new Map<string, Promise<void>>();
 
     constructor(private moduleRef: NgModuleRef<any>,
-                @Inject(ELEMENT_MODULE_LOAD_CALLBACKS_TOKEN) elementModulePaths: Map<string, LoadChildrenCallback>) {
+                @Inject(ElementModuleToken) elementModulePaths: Map<string, LoadChildrenCallback>) {
         this.elementsToLoad = new Map(elementModulePaths);
     }
 
@@ -33,12 +33,12 @@ export class ElementLoadService {
         }
 
         // Returns observable that completes when all discovered elements have been registered.
-        const allRegistered = Promise.all(unregisteredSelectors.map(s => this.loadCustomElement(s)));
+        const allRegistered = Promise.all(unregisteredSelectors.map(s => this.loadElement(s)));
         return from(allRegistered.then(() => undefined));
     }
 
     /** Loads and registers the custom element defined on the `WithCustomElement` module factory. */
-    loadCustomElement(selector: string): Promise<void> {
+    loadElement(selector: string): Promise<void> {
         if (this.elementsLoading.has(selector)) {
             // The custom element is in the process of being loaded and registered.
             return this.elementsLoading.get(selector) as Promise<void>;
@@ -48,11 +48,11 @@ export class ElementLoadService {
             // Load and register the custom element (for the first time).
             const modulePathLoader = this.elementsToLoad.get(selector) as LoadChildrenCallback;
             const loadedAndRegistered =
-                (modulePathLoader() as Promise<Type<WithCustomElementComponent>>)
+                (modulePathLoader() as Promise<Type<ElementModule>>)
                     .then(elementModule => {
                         const elementModuleRef = createNgModuleRef(elementModule, this.moduleRef.injector);
                         const injector = elementModuleRef.injector;
-                        const CustomElementComponent = elementModuleRef.instance.customElementComponent;
+                        const CustomElementComponent = elementModuleRef.instance.elementComponent;
                         const CustomElement = createCustomElement(CustomElementComponent, {injector});
 
                         customElements.define(selector, CustomElement);
