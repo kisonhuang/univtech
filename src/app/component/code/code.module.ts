@@ -1,14 +1,16 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {CodeComponent} from './code.component';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
-import {PrettyPrinter} from './pretty-printer.service';
+
+import {CodeComponent} from './code.component';
+import {CodePrettyService} from './code-pretty.service';
 
 @NgModule({
-    imports: [CommonModule, MatSnackBarModule],
     declarations: [CodeComponent],
+    imports: [CommonModule, MatSnackBarModule],
     exports: [CodeComponent],
-    providers: [PrettyPrinter]
+    providers: [CodePrettyService]
 })
 export class CodeModule {
+
 }
