@@ -33,13 +33,13 @@ export class ElementLazyComponent implements OnInit {
      */
     ngOnInit() {
         if (!this.selector || /[^\w-]/.test(this.selector)) {
-            this.logService.error(new Error(`'univ-element-lazy'使用的无效选择器：${this.selector}`));
+            this.logService.error(new Error(`'univ-element-lazy'中使用的选择器无效：${this.selector}`));
             return;
         }
 
         this.elementRef.nativeElement.textContent = '';
         this.elementRef.nativeElement.appendChild(document.createElement(this.selector));
-        this.elementLoadService.loadElement(this.selector);
+        this.elementLoadService.loadElementModule(this.selector);
     }
 
 }
