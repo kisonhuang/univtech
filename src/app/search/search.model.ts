@@ -1,3 +1,5 @@
+import * as lunr from 'lunr';
+
 //
 export interface SearchResults {
     query: string;
@@ -54,3 +56,6 @@ export interface EncodedPage {
     members: number[];
     topics: string;
 }
+
+//
+export type IndexLoader = (indexBuilder: lunr.Builder) => void;

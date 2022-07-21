@@ -1,8 +1,7 @@
-/// <reference lib="webworker" />
 import * as lunr from 'lunr';
 
 import {WebWorkerMessage} from '../base/worker.service';
-import {EncodedPage, EncodedPages, PageInfo, SearchInfo} from './search.model';
+import {EncodedPage, EncodedPages, PageInfo, SearchInfo, IndexLoader} from './search.model';
 
 const SEARCH_TERMS_URL = '/generated/docs/app/search-data.json';
 let index: lunr.Index;
@@ -117,5 +116,3 @@ function queryIndex(query: string): PageInfo[] {
     }
     return [];
 }
-
-type IndexLoader = (indexBuilder: lunr.Builder) => void;
