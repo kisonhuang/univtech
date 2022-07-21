@@ -55,7 +55,7 @@ export class SearchService {
     /**
      * 搜索索引
      *
-     * @param queryText 查询文本
+     * @param queryText 搜索文本
      * @return Observable<SearchResults> 搜索结果的可观察对象
      */
     searchIndex(queryText: string): Observable<SearchResults> {

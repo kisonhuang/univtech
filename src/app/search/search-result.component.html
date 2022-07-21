@@ -1,11 +1,11 @@
 <div class="search-results" [ngSwitch]="searchState">
 
     <ng-container *ngSwitchCase="'in-progress'">
-        <p class="no-results">Searching ...</p>
+        <p class="no-results">正在搜索...</p>
     </ng-container>
 
-    <ng-container *ngSwitchCase="'results-found'">
-        <h2 class="visually-hidden">Search Results</h2>
+    <ng-container *ngSwitchCase="'has-result'">
+        <h2 class="visually-hidden">搜索结果</h2>
         <div class="search-area" *ngFor="let area of searchAreas">
             <h3 class="search-section-header">{{area.name}} ({{area.pages.length + area.priorityPages.length}})</h3>
             <ul class="priority-pages">
@@ -27,13 +27,14 @@
         </div>
     </ng-container>
 
-    <ng-container *ngSwitchCase="'no-results-found'">
+    <ng-container *ngSwitchCase="'has-no-result'">
         <div class="search-area">
             <p class="no-results">
-                No results found.<br>
-                Here are a few links that might be helpful in finding what you are looking for:
+                没有搜索到结果<br>
+                以下链接可能对您有帮助：
             </p>
             <ul class="priority-pages">
+                <!-- 这里需要修改为动态生成 -->
                 <li class="search-page">
                     <a class="search-result-item" href="api">API reference</a>
                 </li>
@@ -53,9 +54,7 @@
         </div>
     </ng-container>
 
-    <button mat-icon-button class="close-button" aria-label="Close search results panel" (click)="onCloseClicked()">
+    <button mat-icon-button class="close-button" aria-label="关闭搜索结果面板" (click)="onCloseClicked()">
         <mat-icon svgIcon="close"></mat-icon>
     </button>
 </div>
-
-

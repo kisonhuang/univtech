@@ -2,13 +2,27 @@ import * as lunr from 'lunr';
 
 import {WebWorkerMessage} from '../base/worker.service';
 
-// 查询结果
+// 搜索状态
+export enum SearchState {
+    InProgress = 'in-progress',
+    HasResult = 'has-result',
+    HasNoResult = 'has-no-result'
+}
+
+// 搜索结果区域
+export interface SearchResultArea {
+    name: string;
+    pages: SearchResult[];
+    priorityPages: SearchResult[];
+}
+
+// 搜索结果列表
 export interface SearchResults {
     query: string;
     results: SearchResult[];
 }
 
-// 查询结果
+// 搜索结果
 export interface SearchResult {
     path: string;
     title: string;
@@ -17,13 +31,6 @@ export interface SearchResult {
     keywords: string;
     topics: string;
     deprecated: boolean;
-}
-
-// 查询区域
-export interface SearchArea {
-    name: string;
-    pages: SearchResult[];
-    priorityPages: SearchResult[];
 }
 
 // 已解码页面映射
@@ -42,7 +49,7 @@ export interface DecodedPage {
     topics: string;
 }
 
-// 已编码页面
+// 已编码页面列表
 export interface EncodedPages {
     dictionary: string;
     pages: EncodedPage[];

@@ -109,9 +109,9 @@ function createDecodedPage(encodedPage: EncodedPage, dictionaries: string[]): De
 }
 
 /**
- * 查询索引
+ * 搜索索引
  *
- * @param queryText 查询文本
+ * @param queryText 搜索文本
  * @return DecodedPage[] 已解码页面
  */
 function queryIndex(queryText: string): DecodedPage[] {

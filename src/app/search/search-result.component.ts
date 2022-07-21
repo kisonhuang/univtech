@@ -1,11 +1,6 @@
 import {Component, EventEmitter, Input, OnChanges, Output} from '@angular/core';
-import {SearchResult, SearchResults, SearchArea} from './search.model';
 
-enum SearchState {
-    InProgress = 'in-progress',
-    ResultsFound = 'results-found',
-    NoResultsFound = 'no-results-found'
-}
+import {SearchState, SearchResult, SearchResults, SearchResultArea} from './search.model';
 
 /**
  * A component to display search results in groups
@@ -16,26 +11,19 @@ enum SearchState {
 })
 export class SearchResultComponent implements OnChanges {
 
-    /**
-     * The results to display
-     */
-    @Input()
-    searchResults: SearchResults | null = null;
+    // 搜索结果
+    @Input() searchResults: SearchResults | null = null;
 
-    /**
-     * Emitted when the user selects a search result
-     */
-    @Output()
-    resultSelected = new EventEmitter<SearchResult>();
+    // 选择搜索结果事件
+    @Output() resultSelected = new EventEmitter<SearchResult>();
 
-    /**
-     * Emitted when the user clicks the close button
-     */
-    @Output()
-    closeButtonClick = new EventEmitter<void>();
+    // 点击关闭按钮事件
+    @Output() closeButtonClick = new EventEmitter<void>();
 
     searchState: SearchState = SearchState.InProgress;
+
     readonly defaultArea = 'other';
+
     readonly folderToAreaMap: Record<string, string> = {
         api: 'api',
         cli: 'cli',
@@ -45,23 +33,23 @@ export class SearchResultComponent implements OnChanges {
         start: 'tutorials',
         tutorial: 'tutorials',
     };
-    searchAreas: SearchArea[] = [];
+
+    searchResultAreas: SearchResultArea[] = [];
 
     ngOnChanges() {
         if (this.searchResults === null) {
             this.searchState = SearchState.InProgress;
         } else if (this.searchResults.results.length) {
-            this.searchState = SearchState.ResultsFound;
+            this.searchState = SearchState.HasResult;
         } else {
-            this.searchState = SearchState.NoResultsFound;
+            this.searchState = SearchState.HasNoResult;
         }
-        this.searchAreas = this.processSearchResults(this.searchResults);
+        this.searchResultAreas = this.processSearchResults(this.searchResults);
     }
 
-    onResultSelected(page: SearchResult, event: MouseEvent) {
-        // Emit a `resultSelected` event if the result is to be displayed on this page.
+    onResultSelected(selectedPage: SearchResult, event: MouseEvent) {
         if (event.button === 0 && !event.ctrlKey && !event.metaKey) {
-            this.resultSelected.emit(page);
+            this.resultSelected.emit(selectedPage);
         }
     }
 
@@ -69,19 +57,18 @@ export class SearchResultComponent implements OnChanges {
         this.closeButtonClick.emit();
     }
 
-    // Map the search results into groups by area
-    private processSearchResults(search: SearchResults | null) {
-        if (!search) {
+    private processSearchResults(searchResults: SearchResults | null) {
+        if (!searchResults) {
             return [];
         }
         const searchAreaMap: { [key: string]: SearchResult[] } = {};
-        search.results.forEach(result => {
-            if (!result.title) {
+        searchResults.results.forEach(searchResult => {
+            if (!searchResult.title) {
                 return;
-            } // bad data; should fix
-            const areaName = this.computeAreaName(result);
+            }
+            const areaName = this.computeAreaName(searchResult);
             const area = searchAreaMap[areaName] = searchAreaMap[areaName] || [];
-            area.push(result);
+            area.push(searchResult);
         });
         const keys = Object.keys(searchAreaMap).sort((l, r) => l > r ? 1 : -1);
         return keys.map(name => {
@@ -94,24 +81,23 @@ export class SearchResultComponent implements OnChanges {
         });
     }
 
-    // Split the search result path and use the top level folder, if there is one, as the area name.
-    private computeAreaName(result: SearchResult): string {
-        const [folder] = result.path.split('/', 1);
+    private computeAreaName(searchResult: SearchResult): string {
+        const [folder] = searchResult.path.split('/', 1);
         return this.folderToAreaMap[folder] ?? this.defaultArea;
     }
 }
 
-function splitPages(allPages: SearchResult[]) {
+function splitPages(searchResults: SearchResult[]) {
     const priorityPages: SearchResult[] = [];
     const pages: SearchResult[] = [];
     const deprecated: SearchResult[] = [];
-    allPages.forEach(page => {
-        if (page.deprecated) {
-            deprecated.push(page);
+    searchResults.forEach(searchResult => {
+        if (searchResult.deprecated) {
+            deprecated.push(searchResult);
         } else if (priorityPages.length < 5) {
-            priorityPages.push(page);
+            priorityPages.push(searchResult);
         } else {
-            pages.push(page);
+            pages.push(searchResult);
         }
     });
     while (priorityPages.length < 5 && pages.length) {
@@ -125,6 +111,6 @@ function splitPages(allPages: SearchResult[]) {
     return {priorityPages, pages, deprecated};
 }
 
-function compareResults(l: SearchResult, r: SearchResult) {
-    return l.title.toUpperCase() > r.title.toUpperCase() ? 1 : -1;
+function compareResults(first: SearchResult, second: SearchResult) {
+    return first.title.toUpperCase() > second.title.toUpperCase() ? 1 : -1;
 }
