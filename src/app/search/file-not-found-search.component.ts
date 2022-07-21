@@ -12,18 +12,18 @@ import {SearchService} from './search.service';
             <div class="alert is-helpful">
                 <p>Let's see if any of these search results help...</p>
             </div>
-            <aio-search-results class="embedded" [searchResults]="searchResults | async"></aio-search-results>`
+            <univ-search-result class="embedded" [searchResults]="searchResults | async"></univ-search-result>`
 })
 export class FileNotFoundSearchComponent implements OnInit {
     searchResults: Observable<SearchResults>;
 
-    constructor(private location: LocationService, private search: SearchService) {
+    constructor(private location: LocationService, private searchService: SearchService) {
     }
 
     ngOnInit() {
         this.searchResults = this.location.currentPath.pipe(switchMap(path => {
-            const query = path.split(/\W+/).join(' ');
-            return this.search.search(query);
+            const queryText = path.split(/\W+/).join(' ');
+            return this.searchService.searchIndex(queryText);
         }));
     }
 }
