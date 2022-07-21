@@ -20,6 +20,7 @@ export class SearchResultComponent implements OnChanges {
     // 点击关闭按钮事件
     @Output() closeButtonClick = new EventEmitter<void>();
 
+    // 搜索状态
     searchState: SearchState = SearchState.InProgress;
 
     readonly defaultArea = 'other';
@@ -34,6 +35,7 @@ export class SearchResultComponent implements OnChanges {
         tutorial: 'tutorials',
     };
 
+    // 搜索结果区域
     searchResultAreas: SearchResultArea[] = [];
 
     ngOnChanges() {
@@ -61,18 +63,20 @@ export class SearchResultComponent implements OnChanges {
         if (!searchResults) {
             return [];
         }
-        const searchAreaMap: { [key: string]: SearchResult[] } = {};
+
+        const searchResultMap: { [key: string]: SearchResult[] } = {};
         searchResults.results.forEach(searchResult => {
             if (!searchResult.title) {
                 return;
             }
             const areaName = this.computeAreaName(searchResult);
-            const area = searchAreaMap[areaName] = searchAreaMap[areaName] || [];
-            area.push(searchResult);
+            const searchResultArray = searchResultMap[areaName] = searchResultMap[areaName] || [];
+            searchResultArray.push(searchResult);
         });
-        const keys = Object.keys(searchAreaMap).sort((l, r) => l > r ? 1 : -1);
+
+        const keys = Object.keys(searchResultMap).sort((first, second) => first > second ? 1 : -1);
         return keys.map(name => {
-            const {priorityPages, pages, deprecated} = splitPages(searchAreaMap[name]);
+            const {priorityPages, pages, deprecated} = splitPages(searchResultMap[name]);
             return {
                 name,
                 priorityPages,
