@@ -1,8 +1,8 @@
 import {NgZone, Injectable} from '@angular/core';
 import {ConnectableObservable, Observable, race, ReplaySubject, timer} from 'rxjs';
 import {concatMap, first, publishReplay} from 'rxjs/operators';
-import {WebWorkerClient} from 'app/shared/web-worker';
-import {SearchResults} from 'app/search/interfaces';
+import {WebWorkerClient} from '../base/worker.service';
+import {SearchResults} from './search.model';
 
 @Injectable()
 export class SearchService {

@@ -1,12 +1,12 @@
 import {Component, OnInit} from '@angular/core';
 import {Observable} from 'rxjs';
 import {switchMap} from 'rxjs/operators';
-import {LocationService} from 'app/shared/location.service';
-import {SearchResults} from 'app/search/interfaces';
-import {SearchService} from 'app/search/search.service';
+import {LocationService} from '../base/location.service';
+import {SearchResults} from './search.model';
+import {SearchService} from './search.service';
 
 @Component({
-    selector: 'aio-file-not-found-search',
+    selector: 'univ-file-not-found-search',
     template:
         `
             <div class="alert is-helpful">

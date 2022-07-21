@@ -1,13 +1,12 @@
 import {NgModule, Type} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {SharedModule} from '../../shared/shared.module';
 import {FileNotFoundSearchComponent} from './file-not-found-search.component';
-import {WithCustomElementComponent} from '../element-registry';
+import {ElementComponentModule} from '../element/element-registry.service';
 
 @NgModule({
-    imports: [CommonModule, SharedModule],
+    imports: [CommonModule],
     declarations: [FileNotFoundSearchComponent]
 })
-export class FileNotFoundSearchModule implements WithCustomElementComponent {
-    customElementComponent: Type<any> = FileNotFoundSearchComponent;
+export class FileNotFoundSearchModule implements ElementComponentModule {
+    elementComponent: Type<any> = FileNotFoundSearchComponent;
 }

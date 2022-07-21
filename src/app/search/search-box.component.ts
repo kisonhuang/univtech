@@ -1,5 +1,5 @@
 import {AfterViewInit, Component, ViewChild, ElementRef, EventEmitter, Output} from '@angular/core';
-import {LocationService} from 'app/shared/location.service';
+import {LocationService} from '../base/location.service';
 import {Subject} from 'rxjs';
 import {debounceTime, distinctUntilChanged} from 'rxjs/operators';
 
@@ -14,7 +14,7 @@ import {debounceTime, distinctUntilChanged} from 'rxjs/operators';
  *
  */
 @Component({
-    selector: 'aio-search-box',
+    selector: 'univ-search-box',
     template: `
         <input #searchBox
                type="search"
@@ -49,7 +49,7 @@ export class SearchBoxComponent implements AfterViewInit {
      * When we first show this search box we trigger a search if there is a search query in the URL
      */
     ngAfterViewInit() {
-        const query = this.locationService.search().search;
+        const query = this.locationService.getSearchParams().search;
         if (query) {
             this.query = this.decodeQuery(query);
             this.doSearch();

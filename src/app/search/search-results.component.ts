@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, OnChanges, Output} from '@angular/core';
-import {SearchResult, SearchResults, SearchArea} from 'app/search/interfaces';
+import {SearchResult, SearchResults, SearchArea} from './search.model';
 
 enum SearchState {
     InProgress = 'in-progress',
@@ -11,7 +11,7 @@ enum SearchState {
  * A component to display search results in groups
  */
 @Component({
-    selector: 'aio-search-results',
+    selector: 'univ-search-results',
     templateUrl: './search-results.component.html',
 })
 export class SearchResultsComponent implements OnChanges {

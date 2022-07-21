@@ -1,7 +1,8 @@
 /// <reference lib="webworker" />
 import * as lunr from 'lunr';
 
-import {WebWorkerMessage} from '../shared/web-worker-message';
+import {WebWorkerMessage} from '../base/worker.service';
+import {EncodedPage, EncodedPages, PageInfo, SearchInfo} from './search.model';
 
 const SEARCH_TERMS_URL = '/generated/docs/app/search-data.json';
 let index: lunr.Index;
@@ -15,7 +16,7 @@ function createIndex(loadIndexFn: IndexLoader): lunr.Index {
     // The lunr typings are missing QueryLexer so we have to add them here manually.
     const queryLexer = (lunr as any as { QueryLexer: { termSeparator: RegExp } }).QueryLexer;
     queryLexer.termSeparator = lunr.tokenizer.separator = /\s+/;
-    return lunr(function () {
+    return lunr(function() {
         this.pipeline.remove(lunr.stemmer);
         this.ref('path');
         this.field('topics', {boost: 15});
@@ -51,7 +52,7 @@ function handleMessage(message: { data: WebWorkerMessage }): void {
 function makeRequest(url: string, callback: (response: any) => void): void {
     // The JSON file that is loaded should be an array of PageInfo:
     const searchDataRequest = new XMLHttpRequest();
-    searchDataRequest.onload = function () {
+    searchDataRequest.onload = function() {
         callback(JSON.parse(this.responseText));
     };
     searchDataRequest.open('GET', url);
