@@ -11,10 +11,10 @@ enum SearchState {
  * A component to display search results in groups
  */
 @Component({
-    selector: 'univ-search-results',
-    templateUrl: './search-results.component.html',
+    selector: 'univ-search-result',
+    templateUrl: './search-result.component.html',
 })
-export class SearchResultsComponent implements OnChanges {
+export class SearchResultComponent implements OnChanges {
 
     /**
      * The results to display
