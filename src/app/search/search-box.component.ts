@@ -1,17 +1,13 @@
+/* eslint-disable @angular-eslint/no-output-on-prefix */
 import {AfterViewInit, Component, ViewChild, ElementRef, EventEmitter, Output} from '@angular/core';
-import {LocationService} from '../base/location.service';
+
 import {Subject} from 'rxjs';
 import {debounceTime, distinctUntilChanged} from 'rxjs/operators';
 
+import {LocationService} from '../base/location.service';
+
 /**
- * This component provides a text box to type a search query that will be sent to the SearchService.
- *
- * When you arrive at a page containing this component, it will retrieve the `query` from the browser
- * address bar. If there is a query then this will be made.
- *
- * Focussing on the input box will resend whatever query is there. This can be useful if the search
- * results had been hidden for some reason.
- *
+ * 搜索框组件
  */
 @Component({
     selector: 'univ-search-box',
@@ -20,50 +16,49 @@ import {debounceTime, distinctUntilChanged} from 'rxjs/operators';
 export class SearchBoxComponent implements AfterViewInit {
 
     private searchDebounce = 300;
+
     private searchSubject = new Subject<string>();
 
     @ViewChild('searchBox', {static: true}) searchBox: ElementRef;
-    // eslint-disable-next-line @angular-eslint/no-output-on-prefix
+
     @Output() onSearch = this.searchSubject.pipe(distinctUntilChanged(), debounceTime(this.searchDebounce));
-    // eslint-disable-next-line @angular-eslint/no-output-on-prefix
+
     @Output() onFocus = new EventEmitter<string>();
 
-    constructor(private locationService: LocationService) {
+    private get queryText() {
+        return this.searchBox.nativeElement.value;
     }
 
-    /**
-     * When we first show this search box we trigger a search if there is a search query in the URL
-     */
+    private set queryText(queryText: string) {
+        this.searchBox.nativeElement.value = queryText;
+    }
+
+    constructor(private locationService: LocationService) {
+
+    }
+
     ngAfterViewInit() {
-        const query = this.locationService.getSearchParams().search;
-        if (query) {
-            this.query = this.decodeQuery(query);
+        const queryText = this.locationService.getSearchParams().search;
+        if (queryText) {
+            this.queryText = this.decodeQueryText(queryText);
             this.doSearch();
         }
     }
 
+    private decodeQueryText(queryText: string): string {
+        return queryText.replace(/\+/g, ' ');
+    }
+
     doSearch() {
-        this.searchSubject.next(this.query);
+        this.searchSubject.next(this.queryText);
     }
 
     doFocus() {
-        this.onFocus.emit(this.query);
+        this.onFocus.emit(this.queryText);
     }
 
     focus() {
         this.searchBox.nativeElement.focus();
     }
 
-    private decodeQuery(query: string): string {
-        // `decodeURIComponent` does not handle `+` for spaces, replace via RexEx.
-        return query.replace(/\+/g, ' ');
-    }
-
-    private get query() {
-        return this.searchBox.nativeElement.value;
-    }
-
-    private set query(value: string) {
-        this.searchBox.nativeElement.value = value;
-    }
 }
