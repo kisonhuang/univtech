@@ -9,24 +9,6 @@ const pageMap: SearchInfo = {};
 
 addEventListener('message', handleMessage);
 
-// Create the lunr index - the docs should be an array of objects, each object containing
-// the path and search terms for a page
-function createIndex(loadIndexFn: IndexLoader): lunr.Index {
-    // The lunr typings are missing QueryLexer so we have to add them here manually.
-    const queryLexer = (lunr as any as { QueryLexer: { termSeparator: RegExp } }).QueryLexer;
-    queryLexer.termSeparator = lunr.tokenizer.separator = /\s+/;
-    return lunr(function() {
-        this.pipeline.remove(lunr.stemmer);
-        this.ref('path');
-        this.field('topics', {boost: 15});
-        this.field('title', {boost: 10});
-        this.field('headings', {boost: 5});
-        this.field('members', {boost: 4});
-        this.field('keywords', {boost: 2});
-        loadIndexFn(this);
-    });
-}
-
 // The worker receives a message to load the index and to query the index
 function handleMessage(message: { data: WebWorkerMessage }): void {
     const type = message.data.type;
@@ -58,6 +40,23 @@ function makeRequest(url: string, callback: (response: any) => void): void {
     searchDataRequest.send();
 }
 
+// Create the lunr index - the docs should be an array of objects, each object containing
+// the path and search terms for a page
+function createIndex(loadIndexFn: IndexLoader): lunr.Index {
+    // The lunr typings are missing QueryLexer so we have to add them here manually.
+    const queryLexer = (lunr as any as { QueryLexer: { termSeparator: RegExp } }).QueryLexer;
+    queryLexer.termSeparator = lunr.tokenizer.separator = /\s+/;
+    return lunr(function() {
+        this.pipeline.remove(lunr.stemmer);
+        this.ref('path');
+        this.field('topics', {boost: 15});
+        this.field('title', {boost: 10});
+        this.field('headings', {boost: 5});
+        this.field('members', {boost: 4});
+        this.field('keywords', {boost: 2});
+        loadIndexFn(this);
+    });
+}
 
 // Create the search index from the searchInfo which contains the information about each page to be
 // indexed
@@ -71,15 +70,6 @@ function loadIndex({dictionary, pages}: EncodedPages): IndexLoader {
             indexBuilder.add(page);
             pageMap[page.path] = page;
         });
-    };
-}
-
-function decodePage(encodedPage: EncodedPage, dictionary: string[]): PageInfo {
-    return {
-        ...encodedPage,
-        headings: encodedPage.headings?.map(i => dictionary[i]).join(' ') ?? '',
-        keywords: encodedPage.keywords?.map(i => dictionary[i]).join(' ') ?? '',
-        members: encodedPage.members?.map(i => dictionary[i]).join(' ') ?? '',
     };
 }
 
@@ -115,4 +105,13 @@ function queryIndex(query: string): PageInfo[] {
         console.error(e);
     }
     return [];
+}
+
+function decodePage(encodedPage: EncodedPage, dictionary: string[]): PageInfo {
+    return {
+        ...encodedPage,
+        headings: encodedPage.headings?.map(i => dictionary[i]).join(' ') ?? '',
+        keywords: encodedPage.keywords?.map(i => dictionary[i]).join(' ') ?? '',
+        members: encodedPage.members?.map(i => dictionary[i]).join(' ') ?? '',
+    };
 }
