@@ -15,21 +15,7 @@ import {debounceTime, distinctUntilChanged} from 'rxjs/operators';
  */
 @Component({
     selector: 'univ-search-box',
-    template: `
-        <input #searchBox
-               type="search"
-               aria-label="search"
-               placeholder="Search"
-               (input)="doSearch()"
-               (keyup)="doSearch()"
-               (focus)="doFocus()"
-               (click)="doSearch()">
-        <mat-icon
-            *ngIf="searchBox.value"
-            (click)="searchBox.value = ''; searchBox.focus()">
-            close
-        </mat-icon>
-    `
+    templateUrl: './search-box.component.html'
 })
 export class SearchBoxComponent implements AfterViewInit {
 
