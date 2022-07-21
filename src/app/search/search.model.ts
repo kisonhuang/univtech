@@ -1,5 +1,7 @@
 import * as lunr from 'lunr';
 
+import {WebWorkerMessage} from '../base/worker.service';
+
 // 查询结果
 export interface SearchResults {
     query: string;
@@ -55,6 +57,11 @@ export interface EncodedPage {
     keywords: number[];
     members: number[];
     topics: string;
+}
+
+// WebWorker消息
+export interface Message {
+    data: WebWorkerMessage;
 }
 
 // lunr查询词法分析器

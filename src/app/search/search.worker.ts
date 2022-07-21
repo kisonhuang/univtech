@@ -1,32 +1,34 @@
 import * as lunr from 'lunr';
 
-import {WebWorkerMessage} from '../base/worker.service';
-import {EncodedPage, EncodedPages, DecodedPage, DecodedPageMap, ResponseHandler, IndexLoader, LunrQueryLexer} from './search.model';
+import {EncodedPage, EncodedPages, DecodedPage, DecodedPageMap, Message, ResponseHandler, IndexLoader, LunrQueryLexer} from './search.model';
 
 // 搜索数据路径
 const searchDataUrl = '/generated/docs/app/search-data.json';
 
-// 索引
+// lunr索引
 let index: lunr.Index;
 
-// 页面映射
+// 已解码页面映射
 const decodedPageMap: DecodedPageMap = {};
 
-// 添加消息事件监听器
+// 添加消息事件处理器
 addEventListener('message', handleMessage);
 
 /**
  * 处理消息事件
  *
- * @param message 消息
+ * @param message WebWorker消息
  */
-function handleMessage(message: { data: WebWorkerMessage }): void {
+function handleMessage(message: Message): void {
     const type = message.data.type;
     const id = message.data.id;
     const payload = message.data.payload;
     switch (type) {
         case 'load-index':
-            loadIndex(type, id);
+            sendGetRequest(searchDataUrl, (response: string) => {
+                index = createLunrIndex(JSON.parse(response));
+                postMessage({type, id, payload: true});
+            });
             break;
         case 'query-index':
             postMessage({type, id, payload: {query: payload, results: queryIndex(payload)}});
@@ -34,20 +36,6 @@ function handleMessage(message: { data: WebWorkerMessage }): void {
         default:
             postMessage({type, id, payload: {error: '消息类型无效'}});
     }
-}
-
-/**
- * 加载索引
- *
- * @param type 消息类型
- * @param id 消息id
- */
-function loadIndex(type: string, id?: number) {
-    sendGetRequest(searchDataUrl, (response: string) => {
-        const encodedPages: EncodedPages = JSON.parse(response);
-        index = createLunrIndex(encodedPages);
-        postMessage({type, id, payload: true});
-    });
 }
 
 /**
