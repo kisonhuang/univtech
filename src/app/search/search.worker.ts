@@ -1,50 +1,79 @@
 import * as lunr from 'lunr';
 
 import {WebWorkerMessage} from '../base/worker.service';
-import {EncodedPage, EncodedPages, PageInfo, SearchInfo, IndexLoader} from './search.model';
+import {EncodedPage, EncodedPages, DecodedPage, DecodedPageMap, ResponseHandler, IndexLoader, LunrQueryLexer} from './search.model';
 
-const SEARCH_TERMS_URL = '/generated/docs/app/search-data.json';
+// 搜索数据路径
+const searchDataUrl = '/generated/docs/app/search-data.json';
+
+// 索引
 let index: lunr.Index;
-const pageMap: SearchInfo = {};
 
+// 页面映射
+const decodedPageMap: DecodedPageMap = {};
+
+// 添加消息事件监听器
 addEventListener('message', handleMessage);
 
-// The worker receives a message to load the index and to query the index
+/**
+ * 处理消息事件
+ *
+ * @param message 消息
+ */
 function handleMessage(message: { data: WebWorkerMessage }): void {
     const type = message.data.type;
     const id = message.data.id;
     const payload = message.data.payload;
     switch (type) {
         case 'load-index':
-            makeRequest(SEARCH_TERMS_URL, (encodedPages: EncodedPages) => {
-                index = createIndex(loadIndex(encodedPages));
-                postMessage({type, id, payload: true});
-            });
+            loadIndex(type, id);
             break;
         case 'query-index':
             postMessage({type, id, payload: {query: payload, results: queryIndex(payload)}});
             break;
         default:
-            postMessage({type, id, payload: {error: 'invalid message type'}});
+            postMessage({type, id, payload: {error: '消息类型无效'}});
     }
 }
 
-// Use XHR to make a request to the server
-function makeRequest(url: string, callback: (response: any) => void): void {
-    // The JSON file that is loaded should be an array of PageInfo:
-    const searchDataRequest = new XMLHttpRequest();
-    searchDataRequest.onload = function() {
-        callback(JSON.parse(this.responseText));
-    };
-    searchDataRequest.open('GET', url);
-    searchDataRequest.send();
+/**
+ * 加载索引
+ *
+ * @param type 消息类型
+ * @param id 消息id
+ */
+function loadIndex(type: string, id?: number) {
+    sendGetRequest(searchDataUrl, (response: string) => {
+        const encodedPages: EncodedPages = JSON.parse(response);
+        index = createLunrIndex(encodedPages);
+        postMessage({type, id, payload: true});
+    });
 }
 
-// Create the lunr index - the docs should be an array of objects, each object containing
-// the path and search terms for a page
-function createIndex(loadIndexFn: IndexLoader): lunr.Index {
-    // The lunr typings are missing QueryLexer so we have to add them here manually.
-    const queryLexer = (lunr as any as { QueryLexer: { termSeparator: RegExp } }).QueryLexer;
+/**
+ * 发送GET请求
+ *
+ * @param url 请求路径
+ * @param responseHandler 响应处理器
+ */
+function sendGetRequest(url: string, responseHandler: ResponseHandler): void {
+    const request = new XMLHttpRequest();
+    request.onload = function() {
+        responseHandler(this.responseText);
+    };
+    request.open('GET', url);
+    request.send();
+}
+
+/**
+ * 创建lunr索引
+ *
+ * @param encodedPages 已编码页面
+ * @return Index lunr索引
+ */
+function createLunrIndex(encodedPages: EncodedPages): lunr.Index {
+    const indexLoader: IndexLoader = createIndexLoader(encodedPages);
+    const queryLexer = (lunr as any as LunrQueryLexer).queryLexer;
     queryLexer.termSeparator = lunr.tokenizer.separator = /\s+/;
     return lunr(function() {
         this.pipeline.remove(lunr.stemmer);
@@ -54,64 +83,69 @@ function createIndex(loadIndexFn: IndexLoader): lunr.Index {
         this.field('headings', {boost: 5});
         this.field('members', {boost: 4});
         this.field('keywords', {boost: 2});
-        loadIndexFn(this);
+        indexLoader(this);
     });
 }
 
-// Create the search index from the searchInfo which contains the information about each page to be
-// indexed
-function loadIndex({dictionary, pages}: EncodedPages): IndexLoader {
-    const dictionaryArray = dictionary.split(' ');
+/**
+ * 创建索引加载器
+ *
+ * @param encodedPages 已编码页面
+ * @return IndexLoader 索引加载器
+ */
+function createIndexLoader(encodedPages: EncodedPages): IndexLoader {
+    const dictionaries = encodedPages.dictionary.split(' ');
     return (indexBuilder: lunr.Builder) => {
-        // Store the pages data to be used in mapping query results back to pages
-        // Add search terms from each page to the search index
-        pages.forEach(encodedPage => {
-            const page = decodePage(encodedPage, dictionaryArray);
-            indexBuilder.add(page);
-            pageMap[page.path] = page;
+        encodedPages.pages.forEach(encodedPage => {
+            const decodedPage = createDecodedPage(encodedPage, dictionaries);
+            indexBuilder.add(decodedPage);
+            decodedPageMap[decodedPage.path] = decodedPage;
         });
     };
 }
 
-// Query the index and return the processed results
-function queryIndex(query: string): PageInfo[] {
-    // Strip off quotes
-    query = query.replace(/^["']|['"]$/g, '');
-    try {
-        if (query.length) {
-            // First try a query where every term must be present
-            // (see https://lunrjs.com/guides/searching.html#term-presence)
-            const queryAll = query.replace(/\S+/g, '+$&');
-            let results = index.search(queryAll);
-
-            // If that was too restrictive just query for any term to be present
-            if (results.length === 0) {
-                results = index.search(query);
-            }
-
-            // If that is still too restrictive then search in the title for the first word in the query
-            if (results.length === 0) {
-                // E.g. if the search is "ngCont guide" then we search for "ngCont guide title:*ngCont*"
-                const titleQuery = 'title:*' + query.split(' ', 1)[0] + '*';
-                results = index.search(query + ' ' + titleQuery);
-            }
-
-            // Map the hits into info about each page to be returned as results
-            return results.map(hit => pageMap[hit.ref]);
-        }
-    } catch (e) {
-        // If the search query cannot be parsed the index throws an error
-        // Log it and recover
-        console.error(e);
-    }
-    return [];
-}
-
-function decodePage(encodedPage: EncodedPage, dictionary: string[]): PageInfo {
+/**
+ * 创建已解码页面
+ *
+ * @param encodedPage 已编码页面
+ * @param dictionaries 数据字典
+ * @return DecodedPage 已解码页面
+ */
+function createDecodedPage(encodedPage: EncodedPage, dictionaries: string[]): DecodedPage {
     return {
         ...encodedPage,
-        headings: encodedPage.headings?.map(i => dictionary[i]).join(' ') ?? '',
-        keywords: encodedPage.keywords?.map(i => dictionary[i]).join(' ') ?? '',
-        members: encodedPage.members?.map(i => dictionary[i]).join(' ') ?? '',
+        headings: encodedPage.headings?.map(idx => dictionaries[idx]).join(' ') ?? '',
+        keywords: encodedPage.keywords?.map(idx => dictionaries[idx]).join(' ') ?? '',
+        members: encodedPage.members?.map(idx => dictionaries[idx]).join(' ') ?? '',
     };
+}
+
+/**
+ * 查询索引
+ *
+ * @param queryText 查询文本
+ * @return DecodedPage[] 已解码页面
+ */
+function queryIndex(queryText: string): DecodedPage[] {
+    queryText = queryText.replace(/^["']|['"]$/g, '');
+    try {
+        if (queryText.length) {
+            const queryTextAll = queryText.replace(/\S+/g, '+$&');
+            let results = index.search(queryTextAll);
+
+            if (results.length === 0) {
+                results = index.search(queryText);
+            }
+
+            if (results.length === 0) {
+                const queryTextTitle = 'title:*' + queryText.split(' ', 1)[0] + '*';
+                results = index.search(queryText + ' ' + queryTextTitle);
+            }
+
+            return results.map(result => decodedPageMap[result.ref]);
+        }
+    } catch (error) {
+        console.error(error);
+    }
+    return [];
 }
