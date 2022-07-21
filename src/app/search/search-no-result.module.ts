@@ -3,14 +3,14 @@ import {CommonModule} from '@angular/common';
 
 import {ElementComponentModule} from '../element/element-registry.service';
 import {SearchResultModule} from './search-result.module';
-import {FileNotFoundSearchComponent} from './file-not-found-search.component';
+import {SearchNoResultComponent} from './search-no-result.component';
 
 @NgModule({
-    declarations: [FileNotFoundSearchComponent],
+    declarations: [SearchNoResultComponent],
     imports: [CommonModule, SearchResultModule],
 })
-export class FileNotFoundSearchModule implements ElementComponentModule {
+export class SearchNoResultModule implements ElementComponentModule {
 
-    elementComponent: Type<any> = FileNotFoundSearchComponent;
+    elementComponent: Type<any> = SearchNoResultComponent;
 
 }

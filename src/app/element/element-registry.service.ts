@@ -16,10 +16,7 @@ export const ElementComponentModuleMap = new Map<string, LoadChildrenCallback>()
 export const ElementComponentModuleRoutes = [
     {selector: 'univ-code-example', loadChildren: () => import('../code/code-example.module').then(module => module.CodeExampleModule)},
     {selector: 'univ-code-tab', loadChildren: () => import('../code/code-tab.module').then(module => module.CodeTabModule)},
-    // {
-    //     selector: 'aio-file-not-found-search',
-    //     loadChildren: () => import('./search/file-not-found-search.module').then(m => m.FileNotFoundSearchModule)
-    // },
+    {selector: 'univ-search-no-result', loadChildren: () => import('../search/search-no-result.module').then(module => module.SearchNoResultModule)},
     // {
     //     selector: 'aio-toc',
     //     loadChildren: () => import('./toc/toc.module').then(m => m.TocModule)
