@@ -15,8 +15,8 @@ import {TocItem} from './toc.model';
 @Injectable()
 export class TocService {
 
-    // 目录主题
-    tocItemSubject = new ReplaySubject<TocItem[]>(1);
+    // 目录列表主题
+    tocItemsSubject = new ReplaySubject<TocItem[]>(1);
 
     // 当前激活目录主题
     activeTocItemSubject = new ReplaySubject<number | null>(1);
@@ -28,7 +28,7 @@ export class TocService {
      * 构造函数，创建目录服务
      *
      * @param document 文档对象
-     * @param domSanitizer DOM处理器，把值处理为在不同DOM上下文中可以安全使用的值，防止跨站点脚本的安全漏洞（XSS）
+     * @param domSanitizer DOM处理器，把值处理为可以在不同DOM上下文中安全使用的值，防止跨站点脚本的安全漏洞（XSS）
      * @param scrollSpyService 滚动监听服务
      */
     constructor(@Inject(DOCUMENT) private document: any,
@@ -38,7 +38,7 @@ export class TocService {
     }
 
     /**
-     * 生成目录
+     * 生成目录列表
      *
      * @param docElement 文档元素
      * @param docId 文档id
@@ -47,80 +47,36 @@ export class TocService {
         this.resetActiveTocItem();
 
         if (!docElement) {
-            this.tocItemSubject.next([]);
+            this.tocItemsSubject.next([]);
             return;
         }
 
-        const headings = this.getTocHeadings(docElement);
         const headingMap = new Map<string, number>();
-        const tocItems = headings.map(heading => {
-            const {title, content} = this.extractHeadingSafeHtml(heading);
+        const headingElements = this.getHeadingElements(docElement);
+        const tocItems = headingElements.map(headingElement => {
+            const tocItem = this.getTocItemTitleAndContent(headingElement);
             return {
-                level: heading.tagName.toLowerCase(),
-                href: `${docId}#${this.getHeadingId(heading, headingMap)}`,
-                title,
-                content,
+                ...tocItem,
+                level: headingElement.tagName.toLowerCase(),
+                href: `${docId}#${this.getHeadingId(headingElement, headingMap)}`,
             };
         });
 
-        this.tocItemSubject.next(tocItems);
-        this.scrollSpyInfo = this.scrollSpyService.spyOn(headings);
-        this.scrollSpyInfo.active.subscribe(item => this.activeTocItemSubject.next(item && item.index));
+        this.tocItemsSubject.next(tocItems);
+        this.scrollSpyInfo = this.scrollSpyService.spyOn(headingElements);
+        this.scrollSpyInfo.active.subscribe(scrollItem => this.activeTocItemSubject.next(scrollItem && scrollItem.index));
     }
 
     /**
-     * 把HTML转换为可以在ToC中安全使用的内容：
-     * + 删除自动生成的.github-links和.header-link元素及其内容
-     * + 把a元素的内容移到a元素的父节点中（添加到a元素前面），保留a元素的内容，删除a元素
-     * + 绕过安全性，把div.innerHTML认为是安全的HTML，转换为SafeHtml
-     *
-     * @param headingElement HTML标题元素
-     */
-    private extractHeadingSafeHtml(headingElement: HTMLHeadingElement) {
-        const divElement: HTMLDivElement = this.document.createElement('div');
-        divElement.innerHTML = unwrapHtmlForSink(convertInnerHTML(headingElement));
-
-        // 删除自动生成的.github-links和.header-link元素及其内容
-        divElement.querySelectorAll('.github-links, .header-link').forEach(link => link.remove());
-
-        // 把a元素的内容移到a元素的父节点中（添加到a元素前面），保留a元素的内容，删除a元素
-        divElement.querySelectorAll('a').forEach(anchorLink => {
-            const anchorParent = anchorLink.parentNode as Node;
-            while (anchorLink.childNodes.length) {
-                anchorParent.insertBefore(anchorLink.childNodes[0], anchorLink);
-            }
-            anchorLink.remove();
-        });
-
-        return {
-            // 绕过安全性，把div.innerHTML认为是安全的HTML，转换为SafeHtml
-            content: this.domSanitizer.bypassSecurityTrustHtml(divElement.innerHTML.trim()),
-            title: (divElement.textContent || '').trim(),
-        };
-    }
-
-    /**
-     * 获取h1~h3标题元素，过滤掉没有目录的标题
-     *
-     * @param docElement 文档元素
-     * @return HTMLHeadingElement[] h1~h3标题元素数组
-     */
-    private getTocHeadings(docElement: Element): HTMLHeadingElement[] {
-        const headings = docElement.querySelectorAll<HTMLHeadingElement>('h1,h2,h3');
-        const noTocHeadingFilter = (heading: HTMLHeadingElement) => !/(?:no-toc|notoc)/i.test(heading.className);
-        return Array.prototype.filter.call(headings, noTocHeadingFilter);
-    }
-
-    /**
-     * 重置滚动监听信息、当前激活目录、目录列表
+     * 重置滚动监听信息、当前激活目录和目录列表
      */
     resetTocItems() {
         this.resetActiveTocItem();
-        this.tocItemSubject.next([]);
+        this.tocItemsSubject.next([]);
     }
 
     /**
-     * 重置滚动监听信息、当前激活目录
+     * 重置滚动监听信息和当前激活目录
      */
     private resetActiveTocItem() {
         if (this.scrollSpyInfo) {
@@ -131,9 +87,50 @@ export class TocService {
     }
 
     /**
+     * 获取h1~h3标题元素，过滤掉没有目录的标题元素
+     *
+     * @param docElement 文档元素
+     * @return HTMLHeadingElement[] h1~h3标题元素数组
+     */
+    private getHeadingElements(docElement: Element): HTMLHeadingElement[] {
+        const headingElements = docElement.querySelectorAll<HTMLHeadingElement>('h1,h2,h3');
+        const notocHeadingElementFilter = (headingElement: HTMLHeadingElement) => !/(?:no-toc|notoc)/i.test(headingElement.className);
+        return Array.prototype.filter.call(headingElements, notocHeadingElementFilter);
+    }
+
+    /**
+     * 获取目录标题和内容
+     *
+     * @param headingElement h1~h3标题元素
+     * @return TocItem 目录标题和内容
+     */
+    private getTocItemTitleAndContent(headingElement: HTMLHeadingElement) {
+        const divElement: HTMLDivElement = this.document.createElement('div');
+        divElement.innerHTML = unwrapHtmlForSink(convertInnerHTML(headingElement));
+
+        // 删除自动生成的.github-links和.header-link元素及其内容
+        divElement.querySelectorAll('.github-links, .header-link').forEach(linkElement => linkElement.remove());
+
+        // 把a元素的内容添加到父节点中a元素的前面，保留a元素的内容，然后删除a元素
+        divElement.querySelectorAll('a').forEach(anchorElement => {
+            const anchorParentNode = anchorElement.parentNode as Node;
+            while (anchorElement.childNodes.length) {
+                anchorParentNode.insertBefore(anchorElement.childNodes[0], anchorElement);
+            }
+            anchorElement.remove();
+        });
+
+        return {
+            title: (divElement.textContent || '').trim(),
+            // 绕过安全性，把div元素的innerHTML看作可信任的HTML，并转换为SafeHtml
+            content: this.domSanitizer.bypassSecurityTrustHtml(divElement.innerHTML.trim()),
+        };
+    }
+
+    /**
      * 获取标题id，标题id不存在时，自动创建标题id
      *
-     * @param headingElement h1~h6标题元素
+     * @param headingElement h1~h3标题元素
      * @param headingMap 标题映射，key：标题id，value：标题次数
      */
     private getHeadingId(headingElement: HTMLHeadingElement, headingMap: Map<string, number>) {
