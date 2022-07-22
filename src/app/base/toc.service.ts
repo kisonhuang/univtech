@@ -6,7 +6,8 @@ import {ReplaySubject} from 'rxjs';
 import {unwrapHtmlForSink} from 'safevalues';
 
 import {convertInnerHTML} from './security.service';
-import {ScrollSpyInfo, ScrollSpyService} from './scroll-spy.service';
+import {ScrollSpy} from './scroll.model';
+import {ScrollSpyService} from './scroll-spy.service';
 import {TocItem} from './toc.model';
 
 /**
@@ -21,15 +22,15 @@ export class TocService {
     // 当前激活目录主题
     activeTocItemSubject = new ReplaySubject<number | null>(1);
 
-    // 滚动监听信息
-    private scrollSpyInfo: ScrollSpyInfo | null = null;
+    // 滚动监视器
+    private scrollSpy: ScrollSpy | null = null;
 
     /**
      * 构造函数，创建目录服务
      *
      * @param document 文档对象
      * @param domSanitizer DOM处理器，把值处理为可以在不同DOM上下文中安全使用的值，防止跨站点脚本的安全漏洞（XSS）
-     * @param scrollSpyService 滚动监听服务
+     * @param scrollSpyService 滚动监视服务
      */
     constructor(@Inject(DOCUMENT) private document: any,
                 private domSanitizer: DomSanitizer,
@@ -63,12 +64,12 @@ export class TocService {
         });
 
         this.tocItemsSubject.next(tocItems);
-        this.scrollSpyInfo = this.scrollSpyService.spyOn(headingElements);
-        this.scrollSpyInfo.active.subscribe(scrollItem => this.activeTocItemSubject.next(scrollItem && scrollItem.index));
+        this.scrollSpy = this.scrollSpyService.spyOn(headingElements);
+        this.scrollSpy.activeScrollItemObservable.subscribe(scrollItem => this.activeTocItemSubject.next(scrollItem && scrollItem.index));
     }
 
     /**
-     * 重置滚动监听信息、当前激活目录和目录列表
+     * 重置滚动监视器、当前激活目录和目录列表
      */
     resetTocItems() {
         this.resetActiveTocItem();
@@ -76,12 +77,12 @@ export class TocService {
     }
 
     /**
-     * 重置滚动监听信息和当前激活目录
+     * 重置滚动监视器和当前激活目录
      */
     private resetActiveTocItem() {
-        if (this.scrollSpyInfo) {
-            this.scrollSpyInfo.unspy();
-            this.scrollSpyInfo = null;
+        if (this.scrollSpy) {
+            this.scrollSpy.unspyScrollItems();
+            this.scrollSpy = null;
         }
         this.activeTocItemSubject.next(null);
     }

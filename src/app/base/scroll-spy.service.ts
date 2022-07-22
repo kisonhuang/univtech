@@ -4,7 +4,7 @@ import {DOCUMENT} from '@angular/common';
 import {fromEvent, Subject} from 'rxjs';
 import {auditTime, distinctUntilChanged, takeUntil} from 'rxjs/operators';
 
-import {ScrollSpyInfo, ScrollSpiedElementGroup} from './scroll.model';
+import {ScrollSpy, ScrollSpiedElementGroup} from './scroll.model';
 import {ScrollService} from './scroll.service';
 
 @Injectable()
@@ -42,7 +42,7 @@ export class ScrollSpyService {
         return this.document.body.clientHeight || 0;
     }
 
-    spyOn(elements: Element[]): ScrollSpyInfo {
+    spyOn(elements: Element[]): ScrollSpy {
         if (!this.spiedElementGroups.length) {
             this.resizeEvents.subscribe(() => this.onResize());
             this.scrollEvents.subscribe(() => this.onScroll());
@@ -60,8 +60,8 @@ export class ScrollSpyService {
         this.spiedElementGroups.push(spiedGroup);
 
         return {
-            active: spiedGroup.activeScrollItem.asObservable().pipe(distinctUntilChanged()),
-            unspy: () => this.unspy(spiedGroup)
+            activeScrollItemObservable: spiedGroup.activeScrollItem.asObservable().pipe(distinctUntilChanged()),
+            unspyScrollItems: () => this.unspy(spiedGroup)
         };
     }
 

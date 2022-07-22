@@ -1,13 +1,15 @@
 import {Observable, ReplaySubject} from 'rxjs';
 
+// 滚动元素
 export interface ScrollItem {
-    index: number;
-    element: Element;
+    index: number;    // 滚动元素索引
+    element: Element; // 滚动元素
 }
 
-export interface ScrollSpyInfo {
-    active: Observable<ScrollItem | null>;
-    unspy: () => void;
+// 滚动监视器
+export interface ScrollSpy {
+    activeScrollItemObservable: Observable<ScrollItem | null>; // 当前激活滚动元素的可观察对象
+    unspyScrollItems: () => void;                              // 停止监视滚动元素
 }
 
 export class ScrollSpiedElement implements ScrollItem {
