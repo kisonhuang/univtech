@@ -54,7 +54,7 @@ export class TocService {
         const headingMap = new Map<string, number>();
         const headingElements = this.getHeadingElements(docElement);
         const tocItems = headingElements.map(headingElement => {
-            const tocItem = this.getTocItemTitleAndContent(headingElement);
+            const tocItem = this.getTocItemContent(headingElement);
             return {
                 ...tocItem,
                 level: headingElement.tagName.toLowerCase(),
@@ -104,7 +104,7 @@ export class TocService {
      * @param headingElement h1~h3标题元素
      * @return TocItem 目录标题和内容
      */
-    private getTocItemTitleAndContent(headingElement: HTMLHeadingElement) {
+    private getTocItemContent(headingElement: HTMLHeadingElement) {
         const divElement: HTMLDivElement = this.document.createElement('div');
         divElement.innerHTML = unwrapHtmlForSink(convertInnerHTML(headingElement));
 
