@@ -1,7 +1,9 @@
 import {InjectionToken} from '@angular/core';
 
-export const WindowToken = new InjectionToken<Window>('Window');
+// Window对象令牌
+export const windowToken = new InjectionToken<Window>('window');
 
+// Window对象提供器
 export function windowProvider() {
     return window;
 }

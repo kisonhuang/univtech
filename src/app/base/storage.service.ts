@@ -1,6 +1,6 @@
 import {InjectionToken, StaticProvider} from '@angular/core';
 
-import {WindowToken} from './window.service';
+import {windowToken} from './window.service';
 
 export const LocalStorageToken = new InjectionToken<Storage>('LocalStorage');
 
@@ -10,12 +10,12 @@ export const storageProviders: StaticProvider[] = [
     {
         provide: LocalStorageToken,
         useFactory: (window: Window) => getStorage(window, 'localStorage'),
-        deps: [WindowToken]
+        deps: [windowToken]
     },
     {
         provide: SessionStorageToken,
         useFactory: (window: Window) => getStorage(window, 'sessionStorage'),
-        deps: [WindowToken]
+        deps: [windowToken]
     },
 ];
 

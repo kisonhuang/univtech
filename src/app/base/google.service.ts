@@ -1,6 +1,6 @@
 import {Inject, Injectable} from '@angular/core';
 
-import {WindowToken} from './window.service';
+import {windowToken} from './window.service';
 import {environment} from '../../environments/environment';
 
 @Injectable()
@@ -8,7 +8,7 @@ export class GoogleService {
 
     private previousUrl?: string;
 
-    constructor(@Inject(WindowToken) private window: Window) {
+    constructor(@Inject(windowToken) private window: Window) {
         this.callGaFunc('create', environment.gaId, 'auto');
     }
 

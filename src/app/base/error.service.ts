@@ -1,11 +1,11 @@
 import {ErrorHandler, Inject, Injectable, VERSION} from '@angular/core';
 
-import {WindowToken} from './window.service';
+import {windowToken} from './window.service';
 
 @Injectable()
 export class ErrorService extends ErrorHandler {
 
-    constructor(@Inject(WindowToken) private window: Window) {
+    constructor(@Inject(windowToken) private window: Window) {
         super();
     }
 
