@@ -21,8 +21,8 @@ export class WebWorkerClient {
             const id = this.nextId++;
 
             const handleMessage = (response: MessageEvent) => {
-                const {id: responseId, type: responseType, payload: responsePayload} = response.data as WebWorkerMessage;
-                if (id === responseId && type === responseType) {
+                const {type: responseType, id: responseId, payload: responsePayload} = response.data as WebWorkerMessage;
+                if (type === responseType && id === responseId) {
                     this.ngZone.run(() => {
                         subscriber.next(responsePayload);
                         subscriber.complete();
@@ -36,7 +36,8 @@ export class WebWorkerClient {
 
             this.worker.addEventListener('message', handleMessage);
             this.worker.addEventListener('error', handleError);
-            this.worker.postMessage({id, type, payload});
+
+            this.worker.postMessage({type, id, payload});
 
             return () => {
                 this.worker.removeEventListener('message', handleMessage);
@@ -46,4 +47,3 @@ export class WebWorkerClient {
     }
 
 }
-
