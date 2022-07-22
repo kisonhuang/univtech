@@ -2,11 +2,7 @@ import {NgZone} from '@angular/core';
 
 import {Observable} from 'rxjs';
 
-export interface WebWorkerMessage {
-    id?: number;
-    type: string;
-    payload: any;
-}
+import {WebWorkerMessage} from './web-worker.model';
 
 export class WebWorkerClient {
 
