@@ -4,7 +4,7 @@ import {DOCUMENT, Location, PlatformLocation, PopStateEvent, ViewportScroller} f
 import {fromEvent, Subject} from 'rxjs';
 import {debounceTime, takeUntil} from 'rxjs/operators';
 
-import {SessionStorageToken} from './storage.service';
+import {sessionStorageToken} from './storage.service';
 
 type ScrollPosition = [number, number];
 
@@ -46,7 +46,7 @@ export class ScrollService implements OnDestroy {
                 private platformLocation: PlatformLocation,
                 private location: Location,
                 @Inject(DOCUMENT) private document: Document,
-                @Inject(SessionStorageToken) private storage: Storage) {
+                @Inject(sessionStorageToken) private storage: Storage) {
         fromEvent(window, 'resize').pipe(takeUntil(this.onDestroy)).subscribe(() => this._topOffset = null);
         fromEvent(window, 'scroll').pipe(debounceTime(250), takeUntil(this.onDestroy)).subscribe(() => this.updateScrollPositionInHistory());
         fromEvent(window, 'beforeunload').pipe(takeUntil(this.onDestroy)).subscribe(() => this.updateScrollLocationHref());
