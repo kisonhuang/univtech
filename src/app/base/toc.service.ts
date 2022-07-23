@@ -32,7 +32,7 @@ export class TocService {
      * @param domSanitizer DOM处理器，把值处理为可以在不同DOM上下文中安全使用的值，防止跨站点脚本的安全漏洞（XSS）
      * @param scrollSpyService 滚动监视服务
      */
-    constructor(@Inject(DOCUMENT) private document: any,
+    constructor(@Inject(DOCUMENT) private document: Document,
                 private domSanitizer: DomSanitizer,
                 private scrollSpyService: ScrollSpyService) {
 

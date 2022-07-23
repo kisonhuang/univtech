@@ -17,13 +17,13 @@ export class ScrollSpyService {
     private spiedScrollItemGroups: SpiedScrollItemGroup[] = [];
 
     // 停止监听resize和scroll事件的主题
-    private onStopSubject = new Subject<void>();
+    private stopListenSubject = new Subject<void>();
 
     // resize事件
-    private resizeEvent = fromEvent(window, 'resize').pipe(auditTime(300), takeUntil(this.onStopSubject));
+    private resizeEvent = fromEvent(window, 'resize').pipe(auditTime(300), takeUntil(this.stopListenSubject));
 
     // scroll事件
-    private scrollEvent = fromEvent(window, 'scroll').pipe(auditTime(10), takeUntil(this.onStopSubject));
+    private scrollEvent = fromEvent(window, 'scroll').pipe(auditTime(10), takeUntil(this.stopListenSubject));
 
     // 视窗的滚动高度
     private viewportScrollHeight = 0;
@@ -37,7 +37,7 @@ export class ScrollSpyService {
      * @param document 文档对象
      * @param scrollService 滚动服务
      */
-    constructor(@Inject(DOCUMENT) private document: any, private scrollService: ScrollService) {
+    constructor(@Inject(DOCUMENT) private document: Document, private scrollService: ScrollService) {
 
     }
 
@@ -78,7 +78,7 @@ export class ScrollSpyService {
         unspySpiedScrollItemGroup.activeScrollItemSubject.complete();
         this.spiedScrollItemGroups = this.spiedScrollItemGroups.filter(spiedScrollItemGroup => spiedScrollItemGroup !== unspySpiedScrollItemGroup);
         if (!this.spiedScrollItemGroups.length) {
-            this.onStopSubject.next();
+            this.stopListenSubject.next();
         }
     }
 
@@ -100,7 +100,7 @@ export class ScrollSpyService {
      * 确定并发送当前激活的滚动元素，视窗的滚动高度发生改变时，重新计算所有受影响的值
      */
     private sendActiveScrollItem() {
-        // 图片下载、展开或折叠等会改变视窗的滚动高度
+        // 图片下载、展开或折叠等都会改变视窗的滚动高度
         if (this.viewportScrollHeight !== this.getViewportScrollHeight()) {
             this.calculateScrollHeight();
         }
