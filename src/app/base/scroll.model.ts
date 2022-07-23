@@ -10,7 +10,7 @@ export type ScrollPosition = [number, number];
 // PopStateEvent：弹出状态事件；
 // ScrollPositionPopStateEvent：滚动位置的弹出状态事件。
 export interface ScrollPositionPopStateEvent extends PopStateEvent {
-    // 存在history状态时，总是包含滚动位置
+    // 存在历史状态时，总是包含滚动位置
     state?: { scrollPosition: ScrollPosition };
 }
 
