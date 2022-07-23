@@ -4,13 +4,13 @@ import {DOCUMENT} from '@angular/common';
 import {fromEvent, Subject} from 'rxjs';
 import {auditTime, distinctUntilChanged, takeUntil} from 'rxjs/operators';
 
-import {ScrollSpy, ScrollSpiedElementGroup} from './scroll.model';
+import {ScrollSpy, SpiedScrollItemGroup} from './scroll.model';
 import {ScrollService} from './scroll.service';
 
 @Injectable()
 export class ScrollSpyService {
 
-    private spiedElementGroups: ScrollSpiedElementGroup[] = [];
+    private spiedElementGroups: SpiedScrollItemGroup[] = [];
 
     private onStopListening = new Subject<void>();
 
@@ -53,14 +53,14 @@ export class ScrollSpyService {
         const topOffset = this.getTopOffset();
         const maxScrollTop = this.lastMaxScrollTop;
 
-        const spiedGroup = new ScrollSpiedElementGroup(elements);
-        spiedGroup.calibrate(scrollTop, topOffset);
-        spiedGroup.onScroll(scrollTop, maxScrollTop);
+        const spiedGroup = new SpiedScrollItemGroup(elements);
+        spiedGroup.calculateTopScroll(scrollTop, topOffset);
+        spiedGroup.sendActiveScrollItem(scrollTop, maxScrollTop);
 
         this.spiedElementGroups.push(spiedGroup);
 
         return {
-            activeScrollItemObservable: spiedGroup.activeScrollItem.asObservable().pipe(distinctUntilChanged()),
+            activeScrollItemObservable: spiedGroup.activeScrollItemSubject.asObservable().pipe(distinctUntilChanged()),
             unspyScrollItems: () => this.unspy(spiedGroup)
         };
     }
@@ -73,7 +73,7 @@ export class ScrollSpyService {
 
         this.lastContentHeight = contentHeight;
         this.lastMaxScrollTop = contentHeight - viewportHeight;
-        this.spiedElementGroups.forEach(group => group.calibrate(scrollTop, topOffset));
+        this.spiedElementGroups.forEach(group => group.calculateTopScroll(scrollTop, topOffset));
     }
 
     private onScroll() {
@@ -82,11 +82,11 @@ export class ScrollSpyService {
         }
         const scrollTop = this.getScrollTop();
         const maxScrollTop = this.lastMaxScrollTop;
-        this.spiedElementGroups.forEach(group => group.onScroll(scrollTop, maxScrollTop));
+        this.spiedElementGroups.forEach(group => group.sendActiveScrollItem(scrollTop, maxScrollTop));
     }
 
-    private unspy(spiedElementGroup: ScrollSpiedElementGroup) {
-        spiedElementGroup.activeScrollItem.complete();
+    private unspy(spiedElementGroup: SpiedScrollItemGroup) {
+        spiedElementGroup.activeScrollItemSubject.complete();
         this.spiedElementGroups = this.spiedElementGroups.filter(group => group !== spiedElementGroup);
         if (!this.spiedElementGroups.length) {
             this.onStopListening.next();
