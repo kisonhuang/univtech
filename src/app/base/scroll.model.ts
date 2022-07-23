@@ -1,4 +1,18 @@
+import {PopStateEvent} from '@angular/common';
 import {Observable, ReplaySubject} from 'rxjs';
+
+// 顶部外边距
+export const topMargin = 16;
+
+// 滚动位置
+export type ScrollPosition = [number, number];
+
+// PopStateEvent：弹出状态事件；
+// ScrollPositionPopStateEvent：滚动位置的弹出状态事件。
+export interface ScrollPositionPopStateEvent extends PopStateEvent {
+    // 存在history状态时，总是包含滚动位置
+    state?: { scrollPosition: ScrollPosition };
+}
 
 // 滚动元素
 export interface ScrollItem {

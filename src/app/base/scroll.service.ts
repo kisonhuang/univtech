@@ -1,18 +1,11 @@
 import {Inject, Injectable, OnDestroy} from '@angular/core';
-import {DOCUMENT, Location, PlatformLocation, PopStateEvent, ViewportScroller} from '@angular/common';
+import {DOCUMENT, Location, PlatformLocation, ViewportScroller} from '@angular/common';
 
 import {fromEvent, Subject} from 'rxjs';
 import {debounceTime, takeUntil} from 'rxjs/operators';
 
 import {sessionStorageToken} from './storage.service';
-
-type ScrollPosition = [number, number];
-
-interface ScrollPositionPopStateEvent extends PopStateEvent {
-    state?: { scrollPosition: ScrollPosition };
-}
-
-export const topMargin = 16;
+import {ScrollPosition, ScrollPositionPopStateEvent, topMargin} from './scroll.model';
 
 @Injectable()
 export class ScrollService implements OnDestroy {
