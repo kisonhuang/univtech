@@ -8,7 +8,7 @@ export interface ScrollItem {
 
 // 滚动监视器
 export interface ScrollSpy {
-    activeScrollItemObservable: Observable<ScrollItem | null>; // 当前激活的滚动元素可观察对象
+    activeScrollItemObservable: Observable<ScrollItem | null>; // 当前激活的滚动元素主题
     unspyScrollItems: () => void;                              // 停止监视滚动元素
 }
 

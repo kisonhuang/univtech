@@ -37,7 +37,7 @@ export class WebWorkerClient {
      *
      * @param type 消息类型
      * @param payload 有效负载
-     * @return Observable 可观察对象
+     * @return Observable 消息发送主题
      */
     sendMessage<T>(type: string, payload?: any): Observable<T> {
         return new Observable<T>(subscriber => {

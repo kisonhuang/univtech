@@ -33,7 +33,7 @@ export class ElementLoadService {
      * 加载未注册到浏览器的元素
      *
      * @param element HTML元素
-     * @return Observable<void> 发现的所有元素都已加载完成的可观察对象
+     * @return Observable<void> 所有元素加载完成主题
      */
     loadElementComponentModules(element: HTMLElement): Observable<void> {
         const unloadedSelectors = Array.from(this.unloadedElementComponentModuleMap.keys()).filter(selector => element.querySelector(selector));

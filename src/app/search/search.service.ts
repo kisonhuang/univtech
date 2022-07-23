@@ -3,7 +3,7 @@ import {Injectable, NgZone} from '@angular/core';
 import {ConnectableObservable, Observable, race, ReplaySubject, timer} from 'rxjs';
 import {concatMap, first, publishReplay} from 'rxjs/operators';
 
-import {WebWorkerClient} from '../base/worker.service';
+import {WebWorkerClient} from '../base/web-worker.service';
 import {SearchResults} from './search.model';
 
 /**
@@ -12,7 +12,7 @@ import {SearchResults} from './search.model';
 @Injectable()
 export class SearchService {
 
-    // 初始化完成的可观察对象
+    // 初始化完成主题
     private initialized: Observable<boolean>;
 
     // 搜索主题
@@ -56,7 +56,7 @@ export class SearchService {
      * 搜索索引
      *
      * @param queryText 搜索文本
-     * @return Observable<SearchResults> 搜索结果的可观察对象
+     * @return Observable<SearchResults> 搜索结果主题
      */
     searchIndex(queryText: string): Observable<SearchResults> {
         this.searchSubject.next(queryText);
