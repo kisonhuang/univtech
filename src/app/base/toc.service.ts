@@ -64,7 +64,7 @@ export class TocService {
         });
 
         this.tocItemsSubject.next(tocItems);
-        this.scrollSpy = this.scrollSpyService.spyOn(headingElements);
+        this.scrollSpy = this.scrollSpyService.spyScrollItems(headingElements);
         this.scrollSpy.activeScrollItemObservable.subscribe(scrollItem => this.activeTocItemSubject.next(scrollItem && scrollItem.index));
     }
 
