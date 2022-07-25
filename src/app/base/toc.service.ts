@@ -1,6 +1,6 @@
 import {Inject, Injectable} from '@angular/core';
 import {DOCUMENT} from '@angular/common';
-import {DomSanitizer} from '@angular/platform-browser';
+import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
 
 import {ReplaySubject} from 'rxjs';
 import {unwrapHtmlForSink} from 'safevalues';
@@ -8,7 +8,20 @@ import {unwrapHtmlForSink} from 'safevalues';
 import {convertInnerHTML} from './security.service';
 import {ScrollSpy} from './scroll.model';
 import {ScrollSpyService} from './scroll-spy.service';
-import {TocItem} from './toc.model';
+
+// 目录项
+export interface TocItem {
+    // 目录级别
+    level: string;
+    // 目录链接
+    href: string;
+    // 目录标题
+    title: string;
+    // 目录内容
+    content: SafeHtml;
+    // 是否二级目录
+    isSecondary?: boolean;
+}
 
 /**
  * 目录服务

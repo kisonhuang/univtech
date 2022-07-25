@@ -1,17 +1,29 @@
 import {Inject, Injectable, OnDestroy} from '@angular/core';
-import {ViewportScroller, PlatformLocation, Location, DOCUMENT} from '@angular/common';
+import {ViewportScroller, PlatformLocation, Location, DOCUMENT, PopStateEvent} from '@angular/common';
 
 import {Subject, fromEvent} from 'rxjs';
 import {takeUntil, debounceTime} from 'rxjs/operators';
 
 import {sessionStorageToken} from './storage.service';
-import {ScrollPosition, ScrollPositionPopStateEvent, topMargin} from './scroll.model';
 
 // 滚动地址的存储Key
 const storeKeyScrollLocation = 'storeKeyScrollLocation';
 
 // 滚动位置的存储Key
 const storeKeyScrollPosition = 'storeKeyScrollPosition';
+
+// 顶部外边距
+export const topMargin = 16;
+
+// 滚动位置：[x, y]坐标
+export type ScrollPosition = [number, number];
+
+// PopStateEvent：popstate事件；
+// ScrollPositionPopStateEvent：包含滚动位置的popstate事件。
+export interface ScrollPositionPopStateEvent extends PopStateEvent {
+    // 存在历史状态时，总是包含滚动位置
+    state?: { scrollPosition: ScrollPosition };
+}
 
 /**
  * 滚动服务，把文档元素滚进视图中
