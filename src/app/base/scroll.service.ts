@@ -1,11 +1,17 @@
 import {Inject, Injectable, OnDestroy} from '@angular/core';
-import {DOCUMENT, Location, PlatformLocation, ViewportScroller} from '@angular/common';
+import {ViewportScroller, PlatformLocation, Location, DOCUMENT} from '@angular/common';
 
-import {fromEvent, Subject} from 'rxjs';
-import {debounceTime, takeUntil} from 'rxjs/operators';
+import {Subject, fromEvent} from 'rxjs';
+import {takeUntil, debounceTime} from 'rxjs/operators';
 
 import {sessionStorageToken} from './storage.service';
 import {ScrollPosition, ScrollPositionPopStateEvent, topMargin} from './scroll.model';
+
+// 滚动地址的存储Key
+const storeKeyScrollLocation = 'storeKeyScrollLocation';
+
+// 滚动位置的存储Key
+const storeKeyScrollPosition = 'storeKeyScrollPosition';
 
 /**
  * 滚动服务，把文档元素滚进视图中
@@ -14,24 +20,26 @@ import {ScrollPosition, ScrollPositionPopStateEvent, topMargin} from './scroll.m
 export class ScrollService implements OnDestroy {
 
     // 元素的顶部偏移量
-    private _topOffset?: number | null;
+    private _topOffset: number | null;
 
     // 页面顶部的元素
-    private _topElement?: HTMLElement;
+    private _topElement: HTMLElement;
 
     // 销毁主题
     private destroySubject = new Subject<void>();
 
-    // 滚动位置：popstate事件之后必须调整
-    poppedStateScrollPosition: ScrollPosition | null = null;
+    // popstate事件修复的滚动位置
+    scrollPositionPopped: ScrollPosition | null = null;
 
-    // 浏览器是否支持手动滚动调整功能：Window对象具有scrollTo方法和pageXOffset属性，并且history的scrollRestoration属性可写
-    supportManualScrollRestoration: boolean = !!window && ('scrollTo' in window) && ('pageXOffset' in window) && isScrollRestorationWritable();
+    // 浏览器是否可以手动修复滚动位置：Window对象具有scrollTo方法和pageXOffset属性，并且history的scrollRestoration属性可写
+    canFixScrollPosition: boolean = !!window && ('scrollTo' in window) && ('pageXOffset' in window) && isScrollRestorationWritable();
 
     /**
      * 获取元素的顶部偏移量：页面顶部的工具栏高度 + 顶部外边距
+     *
+     * @return number 元素的顶部偏移量
      */
-    get topOffset() {
+    get topOffset(): number {
         if (!this._topOffset) {
             const toolbar = this.document.querySelector('.app-toolbar');
             this._topOffset = (toolbar && toolbar.clientHeight || 0) + topMargin;
@@ -41,8 +49,10 @@ export class ScrollService implements OnDestroy {
 
     /**
      * 获取页面顶部的元素：id为top-of-page的元素或document.body
+     *
+     * @return HTMLElement 页面顶部的元素
      */
-    get topElement() {
+    get topElement(): HTMLElement {
         if (!this._topElement) {
             this._topElement = this.document.getElementById('top-of-page') || this.document.body;
         }
@@ -52,7 +62,7 @@ export class ScrollService implements OnDestroy {
     /**
      * 构造函数，创建滚动服务
      *
-     * @param viewportScroller 视窗滚动条，通过浏览器视窗滚动条实现的滚动位置管理器
+     * @param viewportScroller 视窗滚动器，通过浏览器视窗滚动器实现的滚动位置管理器
      * @param platformLocation 平台定位器，封装DOM接口的调用，实现平台无关的路由器
      * @param location 定位器，用于与浏览器的URL进行交互
      * @param document 文档对象，浏览器加载的Web页面
@@ -63,26 +73,26 @@ export class ScrollService implements OnDestroy {
                 private location: Location,
                 @Inject(DOCUMENT) private document: Document,
                 @Inject(sessionStorageToken) private storage: Storage) {
-        // 调整大小时，页面顶部的工具栏高度可能会发生改变，因此把元素的顶部偏移量设置为null
+        // 调整大小时，页面顶部的工具栏高度可能会发生改变，把元素的顶部偏移量设置为null
         fromEvent(window, 'resize').pipe(takeUntil(this.destroySubject)).subscribe(() => this._topOffset = null);
 
-        // 触发scroll事件滚动时，修改history中的滚动位置状态，修改存储对象中的滚动位置（scrollPosition）
-        fromEvent(window, 'scroll').pipe(debounceTime(250), takeUntil(this.destroySubject)).subscribe(() => this.updateScrollPositionInHistory());
+        // 滚动时，更新存储的滚动位置，更新history栈中的滚动位置状态
+        fromEvent(window, 'scroll').pipe(debounceTime(250), takeUntil(this.destroySubject)).subscribe(() => this.updateScrollPosition());
 
-        // 触发beforeunload事件卸载之前，修改存储对象中的滚动位置链接（scrollLocationHref）
-        fromEvent(window, 'beforeunload').pipe(takeUntil(this.destroySubject)).subscribe(() => this.updateScrollLocationHref());
+        // 卸载之前，更新存储的滚动地址
+        fromEvent(window, 'beforeunload').pipe(takeUntil(this.destroySubject)).subscribe(() => this.updateScrollLocation());
 
-        // 如果浏览器支持手动滚动调整功能，把滚动调整策略修改为手动（manual）
-        if (this.supportManualScrollRestoration) {
+        if (this.canFixScrollPosition) {
+            // 浏览器可以手动修复滚动位置时，把history的scrollRestoration属性设置为manual
             history.scrollRestoration = 'manual';
 
-            // 因为存在popState事件，所以需要检测前进（forward）和后退（back）导航
-            const locationSubscription = this.location.subscribe((event: ScrollPositionPopStateEvent) => this.scrollOrRemovePosition(event));
-            this.destroySubject.subscribe(() => locationSubscription.unsubscribe());
+            // 点击前进或后退按钮触发的popstate事件的监听器
+            const locationSubscriber = this.location.subscribe((event: ScrollPositionPopStateEvent) => this.handlePopStateEvent(event));
+            this.destroySubject.subscribe(() => locationSubscriber.unsubscribe());
         }
 
-        // 不是重新加载，丢弃存储的滚动信息
-        if (window.location.href !== this.getStoredScrollLocationHref()) {
+        // 没有重新加载时，删除存储的滚动地址和滚动位置
+        if (window.location.href !== this.getStoredScrollLocation()) {
             this.removeStoredScrollInfo();
         }
     }
@@ -90,62 +100,89 @@ export class ScrollService implements OnDestroy {
     /**
      * 销毁之前的清理回调方法
      */
-    ngOnDestroy() {
+    ngOnDestroy(): void {
         this.destroySubject.next();
     }
 
     /**
-     * 从当前位置的hash片段中提取元素id，滚动到元素。<br>
-     * 当前位置中没有hash片段时，滚动到文档顶部。<br>
-     * hash片段中没有找到元素id时，不需要滚动。
+     * 处理popstate事件
+     *
+     * @param event 包含滚动位置的popstate事件
      */
-    scroll() {
-        const hash = this.getCurrentHash();
-        const element = hash ? this.document.getElementById(hash) ?? null : this.topElement;
-        this.scrollToElement(element);
+    handlePopStateEvent(event: ScrollPositionPopStateEvent): void {
+        if (event.type === 'hashchange') {
+            // 当前地址的hash片段发生改变触发popstate事件时，事件类型是hashchange，滚动到popstate事件修复的滚动位置
+            this.scrollToPosition();
+        } else {
+            // 点击前进或后退按钮触发popstate事件时，事件类型不是hashchange，删除存储的滚动地址和滚动位置
+            this.removeStoredScrollInfo();
+            // 修复滚动位置，popstate事件后面可能紧跟着hashchange事件
+            this.scrollPositionPopped = event.state ? event.state.scrollPosition : null;
+        }
     }
 
     /**
-     * 刷新、点击前进或后退按钮、在地址栏输入URL、点击链接加载文档时，滚动到正确位置
+     * 加载页面时，滚动到正确的位置。
+     * 页面加载方式：在地址栏中输入URL、点击链接、点击刷新按钮、点击前进或后退按钮。
      *
-     * @param delay 延迟滚动时间（毫秒）
+     * @param delayTime 滚动延迟时间（毫秒）
      */
-    scrollAfterRender(delay: number) {
-        // 刷新之后进行渲染时，使用存储的滚动位置
+    scrollAfterLoad(delayTime: number): void {
         const storedScrollPosition = this.getStoredScrollPosition();
         if (storedScrollPosition) {
+            // 点击刷新按钮重新加载页面时，使用存储的滚动位置
             this.viewportScroller.scrollToPosition(storedScrollPosition);
         } else {
-            if (this.isNeedToFixScrollPosition()) {
-                // 点击前进或后退按钮触发popstate事件之后，文档被重新加载，需要管理滚动位置
+            if (this.needToFixScrollPosition()) {
+                // 点击前进或后退按钮触发popstate事件重新加载页面时，管理滚动位置
                 this.scrollToPosition();
             } else {
-                // 加载文档的方式：在地址栏输入URL、点击链接
-                if (this.isLocationWithHash()) {
-                    // 位置中包含hash时，等待异步布局，按指定时间延迟滚动
-                    setTimeout(() => this.scroll(), delay);
+                // 地址栏中输入URL加载页面，或者点击链接加载页面
+                if (this.hasCurrentLocationHash()) {
+                    // 当前地址中存在hash片段时，按指定的滚动延迟时间，等待异步布局完成之后，滚动到hash片段对应的元素
+                    setTimeout(() => this.scrollToHashElement(), delayTime);
                 } else {
-                    // 位置中没有包含hash时，滚动到页面顶部
-                    this.scrollToTop();
+                    // 当前地址中不存在hash片段时，滚动到页面顶部的元素
+                    this.scrollToTopElement();
                 }
             }
         }
     }
 
     /**
-     * 滚动到指定元素，没有元素时不需要滚动
+     * 滚动到当前地址的hash片段对应的元素。
+     * 当前地址中没有hash片段时，滚动到页面顶部的元素。
+     * 当前地址的hash片段没有对应的元素时，不需要滚动。
      */
-    scrollToElement(element: HTMLElement | null) {
+    scrollToHashElement(): void {
+        // 当前地址的hash片段去掉开头的#之后就是元素id
+        const hash = this.getCurrentLocationHash();
+        const element = hash ? this.document.getElementById(hash) ?? null : this.topElement;
+        this.scrollToElement(element);
+    }
+
+    /**
+     * 滚动到页面顶部的元素
+     */
+    scrollToTopElement(): void {
+        this.scrollToElement(this.topElement);
+    }
+
+    /**
+     * 滚动到元素，没有元素时，不需要滚动
+     */
+    scrollToElement(element: HTMLElement | null): void {
         if (element) {
             element.scrollIntoView();
             element.focus?.();
 
             if (window && window.scrollBy) {
-                // 尽可能多地滚动，让元素顶部对齐到topOffset。
-                // 通常.top为0，除非元素不能一直向上滚动到顶部，因为viewport比元素后面内容的高度大。
+                // 把元素顶部滚动到元素顶部偏移量的位置。
+                // top属性的值通常为0，除非元素无法滚动到页面顶部，因为视窗的高度大于元素内容的高度。
                 window.scrollBy(0, element.getBoundingClientRect().top - this.topOffset);
 
-                // 元素在页面顶部，但是元素的顶部外边距很小（小于20px）时，一直向上滚动到顶部
+                // 非常接近页面顶部（小于20像素）时，滚动到页面顶部。
+                // 元素位于页面顶部，并且元素的顶部外边距很小时，可能会发生这种情况。
                 if (window.pageYOffset < 20) {
                     window.scrollBy(0, -window.pageYOffset);
                 }
@@ -154,118 +191,100 @@ export class ScrollService implements OnDestroy {
     }
 
     /**
-     * 滚动到文档顶部
+     * 滚动到popstate事件修复的滚动位置
      */
-    scrollToTop() {
-        this.scrollToElement(this.topElement);
-    }
-
-    /**
-     * 滚动到popstate事件之后的目标位置
-     */
-    scrollToPosition() {
-        if (this.poppedStateScrollPosition) {
-            this.viewportScroller.scrollToPosition(this.poppedStateScrollPosition);
-            this.poppedStateScrollPosition = null;
+    scrollToPosition(): void {
+        if (this.scrollPositionPopped) {
+            this.viewportScroller.scrollToPosition(this.scrollPositionPopped);
+            this.scrollPositionPopped = null;
         }
     }
 
     /**
-     * 处理滚动位置的弹出状态事件：<br>
-     * 事件类型是hashchange时，滚动到目标位置。<br>
-     * 事件类型不是hashchange时，从会话存储中删除位置。<br>
-     *
-     * @param event ScrollPositionPopStateEvent：滚动位置的弹出状态事件
+     * 更新存储的滚动地址
      */
-    scrollOrRemovePosition(event: ScrollPositionPopStateEvent) {
-        if (event.type === 'hashchange') {
-            // URL片段标识符改变时，事件类型为hashchange，可以在点击描点之前滚动到目标位置
-            this.scrollToPosition();
-        } else {
-            // 使用前进或后退按钮导航时，从会话存储中删除位置，避免竞争条件
-            // 点击前进或后退按钮等浏览器操作会触发popstate事件，popstate事件后可跟随hashchange事件
-            this.removeStoredScrollInfo();
-            this.poppedStateScrollPosition = event.state ? event.state.scrollPosition : null;
-        }
+    updateScrollLocation(): void {
+        this.storage.setItem(storeKeyScrollLocation, window.location.href);
     }
 
     /**
-     * 修改存储对象中的滚动位置链接（scrollLocationHref）
+     * 更新存储的滚动位置，更新history栈中的滚动位置状态
      */
-    updateScrollLocationHref(): void {
-        this.storage.setItem('scrollLocationHref', window.location.href);
-    }
-
-    /**
-     * 修改history中的滚动位置状态，修改存储对象中的滚动位置（scrollPosition）
-     */
-    updateScrollPositionInHistory() {
-        if (this.supportManualScrollRestoration) {
+    updateScrollPosition(): void {
+        if (this.canFixScrollPosition) {
             const currentScrollPosition = this.viewportScroller.getScrollPosition();
-            // 把浏览器URL修改为指定的规范的URL，并替换平台history栈中最上面的条目
+            // 把浏览器的URL修改为规范的URL，替换history栈中最上面的URL
             this.location.replaceState(this.location.path(true), undefined, {scrollPosition: currentScrollPosition});
-            this.storage.setItem('scrollPosition', currentScrollPosition.join(','));
+            this.storage.setItem(storeKeyScrollPosition, currentScrollPosition.join(','));
         }
     }
 
     /**
-     * 判断当前位置是否存在hash
+     * 判断popState事件之后是否需要手动修复滚动位置
+     *
+     * @return boolean true：需要手动修复滚动位置，false：不需要手动修复滚动位置
      */
-    isLocationWithHash(): boolean {
-        return !!this.getCurrentHash();
+    needToFixScrollPosition(): boolean {
+        return this.canFixScrollPosition && !!this.scrollPositionPopped;
     }
 
     /**
-     * 判断popState事件之后是否需要手动固定滚动位置
+     * 判断当前地址中是否存在hash片段，即以#为开头的URL片段
+     *
+     * @return boolean true：存在hash片段，false：不存在hash片段
      */
-    isNeedToFixScrollPosition(): boolean {
-        return this.supportManualScrollRestoration && !!this.poppedStateScrollPosition;
+    hasCurrentLocationHash(): boolean {
+        return !!this.getCurrentLocationHash();
     }
 
     /**
-     * 从PlatformLocation中获取hash片段，去掉开头的#
+     * 获取当前地址的hash片段，并去掉开头的#
+     *
+     * @return string 当前地址的hash片段
      */
-    private getCurrentHash() {
+    private getCurrentLocationHash(): string {
         return decodeURIComponent(this.platformLocation.hash.replace(/^#/, ''));
     }
 
     /**
-     * 获取存储的滚动位置链接（scrollLocationHref）
+     * 获取存储的滚动地址
+     *
+     * @return string或null 存储的滚动地址
      */
-    getStoredScrollLocationHref(): string | null {
-        const href = this.storage.getItem('scrollLocationHref');
-        return href || null;
+    getStoredScrollLocation(): string | null {
+        return this.storage.getItem(storeKeyScrollLocation) || null;
     }
 
     /**
-     * 获取存储的滚动位置（scrollPosition）
+     * 获取存储的滚动位置
+     *
+     * @return ScrollPosition或null 存储的滚动位置
      */
     getStoredScrollPosition(): ScrollPosition | null {
-        const position = this.storage.getItem('scrollPosition');
-        if (!position) {
+        const scrollPosition = this.storage.getItem(storeKeyScrollPosition);
+        if (!scrollPosition) {
             return null;
         }
-
-        const [x, y] = position.split(',');
+        const [x, y] = scrollPosition.split(',');
         return [+x, +y];
     }
 
     /**
-     * 删除存储的滚动信息：<br>
-     * 删除存储的滚动位置链接（scrollLocationHref）<br>
-     * 删除存储的滚动位置（scrollPosition）<br>
+     * 删除存储的滚动地址和滚动位置
      */
-    removeStoredScrollInfo() {
-        this.storage.removeItem('scrollLocationHref');
-        this.storage.removeItem('scrollPosition');
+    removeStoredScrollInfo(): void {
+        this.storage.removeItem(storeKeyScrollLocation);
+        this.storage.removeItem(storeKeyScrollPosition);
     }
 
 }
 
 /**
  * 根据history实例或原型中的scrollRestoration属性描述符是否可写或是否具有set方法，判断history的scrollRestoration属性是否可写
+ *
+ * @return boolean true：history的scrollRestoration属性可写，false：history的scrollRestoration属性不可写
  */
-function isScrollRestorationWritable() {
+function isScrollRestorationWritable(): boolean {
     const scrollRestorationDescriptor = Object.getOwnPropertyDescriptor(history, 'scrollRestoration') || Object.getOwnPropertyDescriptor(Object.getPrototypeOf(history), 'scrollRestoration');
     return scrollRestorationDescriptor !== undefined && !!(scrollRestorationDescriptor.writable || scrollRestorationDescriptor.set);
 }

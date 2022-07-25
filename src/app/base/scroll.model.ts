@@ -4,11 +4,11 @@ import {Observable, ReplaySubject} from 'rxjs';
 // 顶部外边距
 export const topMargin = 16;
 
-// 滚动位置
+// 滚动位置：[x, y]坐标
 export type ScrollPosition = [number, number];
 
-// PopStateEvent：弹出状态事件；
-// ScrollPositionPopStateEvent：滚动位置的弹出状态事件。
+// PopStateEvent：popstate事件；
+// ScrollPositionPopStateEvent：包含滚动位置的popstate事件。
 export interface ScrollPositionPopStateEvent extends PopStateEvent {
     // 存在历史状态时，总是包含滚动位置
     state?: { scrollPosition: ScrollPosition };
