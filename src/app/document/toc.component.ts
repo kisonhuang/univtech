@@ -1,7 +1,7 @@
-import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, QueryList, ViewChildren} from '@angular/core';
+import {Component, OnInit, AfterViewInit, OnDestroy, ViewChildren, QueryList, ElementRef} from '@angular/core';
 
-import {asapScheduler, combineLatest, Subject} from 'rxjs';
-import {startWith, subscribeOn, takeUntil} from 'rxjs/operators';
+import {Subject, combineLatest, asapScheduler} from 'rxjs';
+import {takeUntil, subscribeOn, startWith} from 'rxjs/operators';
 
 import {ScrollService} from '../base/scroll.service';
 import {TocItem, TocService} from '../base/toc.service';
@@ -14,9 +14,13 @@ type TocType = 'None' | 'Floating' | 'EmbeddedSimple' | 'EmbeddedExpandable';
 })
 export class TocComponent implements OnInit, AfterViewInit, OnDestroy {
 
-    activeTocItemIndex: number | null = null;
+    tocItems: TocItem[];
 
     tocType: TocType = 'None';
+
+    activeTocItemIndex: number | null = null;
+
+    primaryMax = 4;
 
     isCollapsed = true;
 
@@ -24,10 +28,6 @@ export class TocComponent implements OnInit, AfterViewInit, OnDestroy {
 
     @ViewChildren('tocItem') private tocItemElements: QueryList<ElementRef>;
     private destroySubject = new Subject<void>();
-
-    primaryMax = 4;
-
-    tocItems: TocItem[];
 
     constructor(elementRef: ElementRef,
                 private tocService: TocService,
@@ -45,33 +45,32 @@ export class TocComponent implements OnInit, AfterViewInit, OnDestroy {
             });
     }
 
+    // We use the `asap` scheduler because updates to `activeItemIndex` are triggered by DOM changes,
+    // which, in turn, are caused by the rendering that happened due to a ChangeDetection.
+    // Without asap, we would be updating the model while still in a ChangeDetection handler,
+    // which is disallowed by Angular.
     ngAfterViewInit() {
         if (!this.isEmbedded) {
-            // We use the `asap` scheduler because updates to `activeItemIndex` are triggered by DOM changes,
-            // which, in turn, are caused by the rendering that happened due to a ChangeDetection.
-            // Without asap, we would be updating the model while still in a ChangeDetection handler,
-            // which is disallowed by Angular.
             combineLatest([
                 this.tocService.activeTocItemSubject.pipe(subscribeOn(asapScheduler)),
                 this.tocItemElements.changes.pipe(startWith(this.tocItemElements)),
             ])
                 .pipe(takeUntil(this.destroySubject))
-                .subscribe(([index, items]) => {
-                    this.activeTocItemIndex = index;
-                    if (index === null || index >= items.length) {
+                .subscribe(([activeTocItemIndex, tocItemElements]) => {
+                    this.activeTocItemIndex = activeTocItemIndex;
+                    if (activeTocItemIndex === null || activeTocItemIndex >= tocItemElements.length) {
                         return;
                     }
 
-                    const e = items.toArray()[index].nativeElement;
-                    const p = e.offsetParent;
+                    const tocItemElement = tocItemElements.toArray()[activeTocItemIndex].nativeElement;
+                    const tocItemParentElement = tocItemElement.offsetParent;
 
-                    const eRect = e.getBoundingClientRect();
-                    const pRect = p.getBoundingClientRect();
+                    const tocItemElementRect = tocItemElement.getBoundingClientRect();
+                    const tocItemParentElementRect = tocItemParentElement.getBoundingClientRect();
 
-                    const isInViewport = (eRect.top >= pRect.top) && (eRect.bottom <= pRect.bottom);
-
+                    const isInViewport = (tocItemElementRect.top >= tocItemParentElementRect.top) && (tocItemElementRect.bottom <= tocItemParentElementRect.bottom);
                     if (!isInViewport) {
-                        p.scrollTop += (eRect.top - pRect.top) - (p.clientHeight / 2);
+                        tocItemParentElement.scrollTop += (tocItemElementRect.top - tocItemParentElementRect.top) - (tocItemParentElement.clientHeight / 2);
                     }
                 });
         }
