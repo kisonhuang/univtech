@@ -16,7 +16,7 @@ import {Logger} from 'app/shared/logger.service';
  * 2. Activate an update as soon as one is available.
  */
 @Injectable({providedIn: 'root'})
-export class SwUpdatesService implements OnDestroy {
+export class ServiceWorkerService implements OnDestroy {
     private checkInterval = 1000 * 60 * 60 * 6;  // 6 hours
     private onDisable = new Subject<void>();
 
