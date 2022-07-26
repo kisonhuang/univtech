@@ -6,8 +6,7 @@ import {ReplaySubject} from 'rxjs';
 import {unwrapHtmlForSink} from 'safevalues';
 
 import {convertInnerHTML} from './security.service';
-import {ScrollSpy} from './scroll.model';
-import {ScrollSpyService} from './scroll-spy.service';
+import {ScrollSpy, ScrollSpyService} from './scroll-spy.service';
 
 // 目录项
 export interface TocItem {
