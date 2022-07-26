@@ -92,12 +92,25 @@ export class TocComponent implements OnInit, AfterViewInit, OnDestroy {
         this.scrollService.scrollToTopElement();
     }
 
+    /**
+     * 获取目录类型
+     *
+     * @param tocItemCount 非h1标题目录的个数
+     * @return 目录类型
+     */
     private getTocType(tocItemCount: number): TocType {
         return (tocItemCount > 0) ? this.isEmbedded ? (tocItemCount > this.primaryMax) ? 'EmbeddedExpandable' : 'EmbeddedSimple' : 'Floating' : 'None';
     }
 
 }
 
+/**
+ * 计算数组中验证通过的元素个数
+ *
+ * @param items 数组
+ * @param checkItem 验证元素的方法
+ * @return 数组中验证通过的元素个数
+ */
 function countItems<T>(items: T[], checkItem: (item: T) => boolean): number {
     return items.reduce((count, item) => checkItem(item) ? count + 1 : count, 0);
 }
