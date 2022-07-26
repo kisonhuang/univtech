@@ -3,8 +3,8 @@ import {SwUpdate} from '@angular/service-worker';
 import {concat, interval, Subject} from 'rxjs';
 import {first, takeUntil, tap} from 'rxjs/operators';
 
-import {LocationService} from 'app/shared/location.service';
-import {Logger} from 'app/shared/logger.service';
+import {LocationService} from './location.service';
+import {LogService} from './log.service';
 
 
 /**
@@ -22,7 +22,7 @@ export class ServiceWorkerService implements OnDestroy {
 
     constructor(
         private appRef: ApplicationRef, private errorHandler: ErrorHandler,
-        private location: LocationService, private logger: Logger, private swu: SwUpdate) {
+        private location: LocationService, private logService: LogService, private swu: SwUpdate) {
     }
 
     disable() {
@@ -57,7 +57,7 @@ export class ServiceWorkerService implements OnDestroy {
                 tap(evt => this.log(`Update activated: ${JSON.stringify(evt)}`)),
                 takeUntil(this.onDisable),
             )
-            .subscribe(() => this.location.fullPageNavigationNeeded());
+            .subscribe(() => this.location.needToLoadFullPage());
 
         // Request an immediate page reload once an unrecoverable state has been detected.
         this.swu.unrecoverable
@@ -69,7 +69,7 @@ export class ServiceWorkerService implements OnDestroy {
                 }),
                 takeUntil(this.onDisable),
             )
-            .subscribe(() => this.location.reloadPage());
+            .subscribe(() => this.location.reloadCurrentPage());
     }
 
     ngOnDestroy() {
@@ -78,6 +78,6 @@ export class ServiceWorkerService implements OnDestroy {
 
     private log(message: string) {
         const timestamp = new Date().toISOString();
-        this.logger.log(`[SwUpdates - ${timestamp}]: ${message}`);
+        this.logService.log(`[SwUpdates - ${timestamp}]: ${message}`);
     }
 }
