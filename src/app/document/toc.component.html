@@ -1,31 +1,39 @@
 <div *ngIf="tocType !== 'None'" class="toc-inner no-print" [class.collapsed]="isCollapsed">
 
     <div *ngIf="tocType === 'EmbeddedSimple'" class="toc-heading embedded">
-        Contents
+        内容
     </div>
 
-    <button *ngIf="tocType === 'EmbeddedExpandable'" type="button" (click)="toggle(false)"
+    <button *ngIf="tocType === 'EmbeddedExpandable'"
+            type="button"
+            (click)="toggle(false)"
             class="toc-heading embedded secondary"
-            title="Expand/collapse contents"
-            aria-label="Expand/collapse contents"
+            title="展开/折叠内容"
+            aria-label="展开/折叠内容"
             [attr.aria-pressed]="!isCollapsed">
-        Contents
-        <mat-icon class="rotating-icon" svgIcon="keyboard_arrow_right" [class.collapsed]="isCollapsed"></mat-icon>
+        内容
+        <mat-icon class="rotating-icon" svgIcon="right_arrow" [class.collapsed]="isCollapsed"></mat-icon>
     </button>
 
     <ul class="toc-list" [class.embedded]="tocType !== 'Floating'">
-        <ng-container *ngFor="let toc of tocItems; let i = index">
-            <li #tocItem title="{{toc.title}}" *ngIf="tocType === 'Floating' || toc.level !== 'h1'"
-                class="{{toc.level}}" [class.secondary]="tocType === 'EmbeddedExpandable' && i >= primaryMax" [class.active]="i === activeTocItemIndex">
-                <a [href]="toc.href" [innerHTML]="toc.content"></a>
+        <ng-container *ngFor="let tocItem of tocItems; let idx = index">
+            <li #tocItemElement *ngIf="tocType === 'Floating' || tocItem.level !== 'h1'"
+                title="{{tocItem.title}}"
+                class="{{tocItem.level}}"
+                [class.secondary]="tocType === 'EmbeddedExpandable' && idx >= primaryMax"
+                [class.active]="idx === activeTocItemIndex">
+                <a [href]="tocItem.href" [innerHTML]="tocItem.content"></a>
             </li>
         </ng-container>
     </ul>
 
-    <button *ngIf="tocType === 'EmbeddedExpandable'" type="button" (click)="toggle()"
-            class="toc-more-items embedded material-icons" [class.collapsed]="isCollapsed"
-            title="Expand/collapse contents"
-            aria-label="Expand/collapse contents"
+    <button *ngIf="tocType === 'EmbeddedExpandable'"
+            type="button"
+            (click)="toggle()"
+            class="toc-more-items embedded material-icons"
+            [class.collapsed]="isCollapsed"
+            title="展开/折叠内容"
+            aria-label="展开/折叠内容"
             [attr.aria-pressed]="!isCollapsed">
     </button>
 </div>
