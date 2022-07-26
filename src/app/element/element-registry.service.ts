@@ -17,10 +17,7 @@ export const ElementComponentModuleRoutes = [
     {selector: 'univ-code-example', loadChildren: () => import('../code/code-example.module').then(module => module.CodeExampleModule)},
     {selector: 'univ-code-tab', loadChildren: () => import('../code/code-tab.module').then(module => module.CodeTabModule)},
     {selector: 'univ-search-no-result', loadChildren: () => import('../search/search-no-result.module').then(module => module.SearchNoResultModule)},
-    // {
-    //     selector: 'aio-toc',
-    //     loadChildren: () => import('./toc/toc.module').then(m => m.TocModule)
-    // },
+    {selector: 'univ-toc', loadChildren: () => import('../document/toc.module').then(module => module.TocModule)},
 ];
 
 // 元素组件模块路由转换为元素组件选择器与延时加载的元素组件模块之间的映射
