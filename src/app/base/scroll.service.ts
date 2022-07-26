@@ -145,7 +145,7 @@ export class ScrollService implements OnDestroy {
             // 点击刷新按钮重新加载页面时，使用存储的滚动位置
             this.viewportScroller.scrollToPosition(storedScrollPosition);
         } else {
-            if (this.needToFixScrollPosition()) {
+            if (this.isNeededToFixScrollPosition()) {
                 // 点击前进或后退按钮触发popstate事件重新加载页面时，管理滚动位置
                 this.scrollToPosition();
             } else {
@@ -236,7 +236,7 @@ export class ScrollService implements OnDestroy {
      *
      * @return boolean true：需要手动修复滚动位置，false：不需要手动修复滚动位置
      */
-    needToFixScrollPosition(): boolean {
+    isNeededToFixScrollPosition(): boolean {
         return this.canFixScrollPosition && !!this.scrollPositionPopped;
     }
 
