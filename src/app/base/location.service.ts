@@ -56,7 +56,7 @@ export class LocationService {
      * @param mouseClicks 鼠标的点击次数，0：点击鼠标左键或没有点击鼠标
      * @param ctrlPressed 是否按下Ctrl键，true：按下了Ctrl键；false：没有按下Ctrl键
      * @param metaPressed 是否按下Alt键或窗口键，true：按下了Alt键或窗口键；false：没有按下Alt键或窗口键
-     * @return boolean true：让浏览器处理链接的点击事件；false：使用gotoUrl进行导航，浏览器不需要处理链接的点击事件
+     * @return true：让浏览器处理链接的点击事件；false：使用gotoUrl进行导航，浏览器不需要处理链接的点击事件
      */
     handleAnchorClick(anchorElement: HTMLAnchorElement, mouseClicks = 0, ctrlPressed = false, metaPressed = false): boolean {
         // 点击非鼠标左键，或者按下了Ctrl键，或者按下了Alt键或窗口键时，让浏览器处理链接的点击事件
@@ -144,23 +144,23 @@ export class LocationService {
      * 去掉路径中的特殊字符
      *
      * @param url 路径
-     * @return string 去掉特殊字符后的路径
+     * @return 去掉特殊字符后的路径
      */
     private stripSpecialChars(url: string): string {
         return url.replace(/^\/+/, '').replace(/\/+(\?|#|$)/, '$1');
     }
 
     /**
-     * 用户下次发起导航时，需要加载整个页面
+     * 下次导航时，加载整个页面
      */
     needToLoadFullPage(): void {
         this.isNeededToLoadFullPage = true;
     }
 
     /**
-     * 获取查询参数
+     * 获取当前路径的查询参数
      *
-     * @return `{ [key: string]: string | undefined }` 查询参数映射，key：查询参数名；value：查询参数值或undefined
+     * @return 查询参数映射，key：查询参数名；value：查询参数值或undefined
      */
     getSearchParams(): { [key: string]: string | undefined } {
         const paramMap: { [key: string]: string | undefined } = {};
@@ -183,7 +183,7 @@ export class LocationService {
     }
 
     /**
-     * 设置查询参数
+     * 设置当前路径的查询参数
      *
      * @param title 标题
      * @param paramMap 查询参数映射，key：查询参数名；value：查询参数值或undefined
