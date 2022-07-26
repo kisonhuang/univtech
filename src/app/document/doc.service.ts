@@ -31,7 +31,7 @@ const docFetchErrorContent = (path: string) => htmlFromStringKnownToSatisfyTypeC
 );
 
 @Injectable()
-export class DocumentService {
+export class DocService {
 
     private docMap = new Map<string, Observable<DocumentSafe>>();
 
@@ -40,7 +40,7 @@ export class DocumentService {
     constructor(private httpClient: HttpClient,
                 private logService: LogService,
                 location: LocationService) {
-        this.currentDocument = location.currentPath.pipe(switchMap(path => this.getDocument(path)));
+        this.currentDocument = location.currentPathObservable.pipe(switchMap(path => this.getDocument(path)));
     }
 
     private getDocument(url: string) {

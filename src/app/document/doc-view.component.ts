@@ -21,7 +21,7 @@ const initialDocViewerContent = initialDocViewerElement ? convertInnerHTML(initi
     selector: 'univ-doc-viewer',
     template: ''
 })
-export class DocViewerComponent implements OnDestroy {
+export class DocViewComponent implements OnDestroy {
     private hostElement: HTMLElement;
 
     private void$ = of<void>(undefined);
