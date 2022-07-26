@@ -46,7 +46,7 @@ const svgSourceGithub = convertSvgTemplate`
     </svg>`;
 
 // svg图标令牌
-export const svgIconToken = new InjectionToken<Array<SvgIcon>>('svgIcons');
+export const svgIconToken = new InjectionToken<Array<SvgIcon>>('svgIconToken');
 
 // svg图标提供器：关闭图标提供器、评论图标提供器、右键箭头提供器、菜单图标提供器、Github图标提供器
 export const svgIconProviders: StaticProvider[] = [

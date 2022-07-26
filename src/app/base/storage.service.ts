@@ -3,10 +3,10 @@ import {InjectionToken, StaticProvider} from '@angular/core';
 import {windowToken} from './window.service';
 
 // 本地存储对象令牌
-export const localStorageToken = new InjectionToken<Storage>('localStorage');
+export const localStorageToken = new InjectionToken<Storage>('localStorageToken');
 
 // 会话存储对象令牌
-export const sessionStorageToken = new InjectionToken<Storage>('sessionStorage');
+export const sessionStorageToken = new InjectionToken<Storage>('sessionStorageToken');
 
 // 存储对象提供器：本地存储对象提供器、会话存储对象提供器
 export const storageProviders: StaticProvider[] = [

@@ -7,10 +7,10 @@ import {takeUntil, debounceTime} from 'rxjs/operators';
 import {sessionStorageToken} from './storage.service';
 
 // 滚动地址的存储Key
-const storeKeyScrollLocation = 'storeKeyScrollLocation';
+const scrollLocationKey = 'scrollLocationKey';
 
 // 滚动位置的存储Key
-const storeKeyScrollPosition = 'storeKeyScrollPosition';
+const scrollPositionKey = 'scrollPositionKey';
 
 // 顶部外边距
 export const topMargin = 16;
@@ -216,7 +216,7 @@ export class ScrollService implements OnDestroy {
      * 更新存储的滚动地址
      */
     updateScrollLocation(): void {
-        this.storage.setItem(storeKeyScrollLocation, window.location.href);
+        this.storage.setItem(scrollLocationKey, window.location.href);
     }
 
     /**
@@ -227,7 +227,7 @@ export class ScrollService implements OnDestroy {
             const currentScrollPosition = this.viewportScroller.getScrollPosition();
             // 把浏览器的URL修改为规范的URL，替换history栈中最上面的URL
             this.location.replaceState(this.location.path(true), undefined, {scrollPosition: currentScrollPosition});
-            this.storage.setItem(storeKeyScrollPosition, currentScrollPosition.join(','));
+            this.storage.setItem(scrollPositionKey, currentScrollPosition.join(','));
         }
     }
 
@@ -264,7 +264,7 @@ export class ScrollService implements OnDestroy {
      * @return string或null 存储的滚动地址
      */
     getStoredScrollLocation(): string | null {
-        return this.storage.getItem(storeKeyScrollLocation) || null;
+        return this.storage.getItem(scrollLocationKey) || null;
     }
 
     /**
@@ -273,7 +273,7 @@ export class ScrollService implements OnDestroy {
      * @return ScrollPosition或null 存储的滚动位置
      */
     getStoredScrollPosition(): ScrollPosition | null {
-        const scrollPosition = this.storage.getItem(storeKeyScrollPosition);
+        const scrollPosition = this.storage.getItem(scrollPositionKey);
         if (!scrollPosition) {
             return null;
         }
@@ -285,8 +285,8 @@ export class ScrollService implements OnDestroy {
      * 删除存储的滚动地址和滚动位置
      */
     removeStoredScrollInfo(): void {
-        this.storage.removeItem(storeKeyScrollLocation);
-        this.storage.removeItem(storeKeyScrollPosition);
+        this.storage.removeItem(scrollLocationKey);
+        this.storage.removeItem(scrollPositionKey);
     }
 
 }
