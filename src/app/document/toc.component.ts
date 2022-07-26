@@ -14,16 +14,16 @@ type TocType = 'None' | 'Floating' | 'EmbeddedSimple' | 'EmbeddedExpandable';
 })
 export class TocComponent implements OnInit, AfterViewInit, OnDestroy {
 
-    activeIndex: number | null = null;
+    activeTocItemIndex: number | null = null;
 
-    type: TocType = 'None';
+    tocType: TocType = 'None';
 
     isCollapsed = true;
 
     isEmbedded = false;
 
-    @ViewChildren('tocItem') private items: QueryList<ElementRef>;
-    private onDestroy = new Subject<void>();
+    @ViewChildren('tocItem') private tocItemElements: QueryList<ElementRef>;
+    private destroySubject = new Subject<void>();
 
     primaryMax = 4;
 
@@ -37,18 +37,11 @@ export class TocComponent implements OnInit, AfterViewInit, OnDestroy {
 
     ngOnInit() {
         this.tocService.tocItemsSubject
-            .pipe(takeUntil(this.onDestroy))
+            .pipe(takeUntil(this.destroySubject))
             .subscribe(tocItems => {
                 this.tocItems = tocItems;
-                const itemCount = count(this.tocItems, tocItem => tocItem.level !== 'h1');
-
-                this.type = (itemCount > 0) ?
-                    this.isEmbedded ?
-                        (itemCount > this.primaryMax) ?
-                            'EmbeddedExpandable' :
-                            'EmbeddedSimple' :
-                        'Floating' :
-                    'None';
+                const tocItemCount = countItems(this.tocItems, tocItem => tocItem.level !== 'h1');
+                this.tocType = this.getTocType(tocItemCount);
             });
     }
 
@@ -60,11 +53,11 @@ export class TocComponent implements OnInit, AfterViewInit, OnDestroy {
             // which is disallowed by Angular.
             combineLatest([
                 this.tocService.activeTocItemSubject.pipe(subscribeOn(asapScheduler)),
-                this.items.changes.pipe(startWith(this.items)),
+                this.tocItemElements.changes.pipe(startWith(this.tocItemElements)),
             ])
-                .pipe(takeUntil(this.onDestroy))
+                .pipe(takeUntil(this.destroySubject))
                 .subscribe(([index, items]) => {
-                    this.activeIndex = index;
+                    this.activeTocItemIndex = index;
                     if (index === null || index >= items.length) {
                         return;
                     }
@@ -85,7 +78,7 @@ export class TocComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        this.onDestroy.next();
+        this.destroySubject.next();
     }
 
     toggle(canScroll = true) {
@@ -99,8 +92,12 @@ export class TocComponent implements OnInit, AfterViewInit, OnDestroy {
         this.scrollService.scrollToTopElement();
     }
 
+    private getTocType(tocItemCount: number): TocType {
+        return (tocItemCount > 0) ? this.isEmbedded ? (tocItemCount > this.primaryMax) ? 'EmbeddedExpandable' : 'EmbeddedSimple' : 'Floating' : 'None';
+    }
+
 }
 
-function count<T>(array: T[], fn: (item: T) => boolean) {
-    return array.reduce((result, item) => fn(item) ? result + 1 : result, 0);
+function countItems<T>(items: T[], checkItem: (item: T) => boolean): number {
+    return items.reduce((count, item) => checkItem(item) ? count + 1 : count, 0);
 }
