@@ -10,33 +10,37 @@ type TocType = 'None' | 'Floating' | 'EmbeddedSimple' | 'EmbeddedExpandable';
 
 @Component({
     selector: 'univ-toc',
-    templateUrl: 'toc.component.html',
-    styles: []
+    templateUrl: './toc.component.html',
 })
 export class TocComponent implements OnInit, AfterViewInit, OnDestroy {
 
     activeIndex: number | null = null;
+
     type: TocType = 'None';
+
     isCollapsed = true;
+
     isEmbedded = false;
+
     @ViewChildren('tocItem') private items: QueryList<ElementRef>;
     private onDestroy = new Subject<void>();
-    primaryMax = 4;
-    tocList: TocItem[];
 
-    constructor(
-        private scrollService: ScrollService,
-        elementRef: ElementRef,
-        private tocService: TocService) {
+    primaryMax = 4;
+
+    tocItems: TocItem[];
+
+    constructor(elementRef: ElementRef,
+                private tocService: TocService,
+                private scrollService: ScrollService) {
         this.isEmbedded = elementRef.nativeElement.className.indexOf('embedded') !== -1;
     }
 
     ngOnInit() {
         this.tocService.tocItemsSubject
             .pipe(takeUntil(this.onDestroy))
-            .subscribe(tocList => {
-                this.tocList = tocList;
-                const itemCount = count(this.tocList, item => item.level !== 'h1');
+            .subscribe(tocItems => {
+                this.tocItems = tocItems;
+                const itemCount = count(this.tocItems, tocItem => tocItem.level !== 'h1');
 
                 this.type = (itemCount > 0) ?
                     this.isEmbedded ?
@@ -87,13 +91,14 @@ export class TocComponent implements OnInit, AfterViewInit, OnDestroy {
     toggle(canScroll = true) {
         this.isCollapsed = !this.isCollapsed;
         if (canScroll && this.isCollapsed) {
-            this.toTop();
+            this.scrollToTopElement();
         }
     }
 
-    toTop() {
+    scrollToTopElement() {
         this.scrollService.scrollToTopElement();
     }
+
 }
 
 function count<T>(array: T[], fn: (item: T) => boolean) {
