@@ -1,9 +1,15 @@
-export interface DocumentSafe {
+// 安全的文档内容
+export interface DocSafe {
+    // 文档id
     id: string;
-    contents: TrustedHTML | null;
+    // 文档内容
+    content: TrustedHTML | null;
 }
 
-export interface DocumentUnsafe {
+// 不安全的文档内容
+export interface DocUnsafe {
+    // 文档id
     id: string;
-    contents: string | null;
+    // 文档内容
+    content: string | null;
 }
