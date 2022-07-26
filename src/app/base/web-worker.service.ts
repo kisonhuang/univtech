@@ -13,25 +13,26 @@ export interface WebWorkerMessage {
 }
 
 /**
- * WebWorker客户端
+ * WebWorker服务
  */
-export class WebWorkerClient {
+export class WebWorkerService {
 
     // 下一个消息id
-    private nextId = 0;
+    private nextId: number = 0;
 
     /**
-     * 创建WebWorker客户端
+     * 创建WebWorker服务
      *
      * @param worker 通过脚本创建，可以把消息发回给创建者的后台任务
      * @param ngZone 在Angular区域内外执行任务的服务
+     * @return WebWorker服务
      */
-    static create(worker: Worker, ngZone: NgZone) {
-        return new WebWorkerClient(worker, ngZone);
+    static create(worker: Worker, ngZone: NgZone): WebWorkerService {
+        return new WebWorkerService(worker, ngZone);
     }
 
     /**
-     * 私有构造函数，创建WebWorker客户端
+     * 私有构造函数，创建WebWorker服务
      *
      * @param worker 通过脚本创建，可以把消息发回给创建者的后台任务
      * @param ngZone 在Angular区域内外执行任务的服务
@@ -45,7 +46,7 @@ export class WebWorkerClient {
      *
      * @param type 消息类型
      * @param payload 有效负载
-     * @return Observable 消息发送主题
+     * @return 消息发送主题
      */
     sendMessage<T>(type: string, payload?: any): Observable<T> {
         return new Observable<T>(subscriber => {
@@ -53,7 +54,7 @@ export class WebWorkerClient {
 
             // 处理消息事件
             const handleMessage = (event: MessageEvent) => {
-                const message: WebWorkerMessage = event.data as WebWorkerMessage;
+                const message = event.data as WebWorkerMessage;
                 if (type === message.type && id === message.id) {
                     this.ngZone.run(() => {
                         subscriber.next(message.payload);
