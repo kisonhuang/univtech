@@ -10,7 +10,7 @@ import {htmlFromStringKnownToSatisfyTypeContract} from 'safevalues/unsafe/review
 import {LogService} from '../base/log.service';
 import {LocationService} from '../base/location.service';
 
-import {DocumentSafe, DocumentUnsafe} from './document.model';
+import {DocSafe, DocUnsafe} from './doc.model';
 
 export const UrlPrefixContent = 'content/';
 
@@ -33,9 +33,9 @@ const docFetchErrorContent = (path: string) => htmlFromStringKnownToSatisfyTypeC
 @Injectable()
 export class DocService {
 
-    private docMap = new Map<string, Observable<DocumentSafe>>();
+    private docMap = new Map<string, Observable<DocSafe>>();
 
-    currentDocument: Observable<DocumentSafe>;
+    currentDocument: Observable<DocSafe>;
 
     constructor(private httpClient: HttpClient,
                 private logService: LogService,
@@ -49,15 +49,15 @@ export class DocService {
         if (!this.docMap.has(id)) {
             this.docMap.set(id, this.fetchDocument(id));
         }
-        return this.docMap.get(id) as Observable<DocumentSafe>;
+        return this.docMap.get(id) as Observable<DocSafe>;
     }
 
-    private fetchDocument(id: string): Observable<DocumentSafe> {
+    private fetchDocument(id: string): Observable<DocSafe> {
         const requestPath = `${UrlPrefixDocs}${encodeToLowerCase(id)}.json`;
-        const subject = new AsyncSubject<DocumentSafe>();
+        const subject = new AsyncSubject<DocSafe>();
 
         this.logService.log('获取文档：', requestPath);
-        this.httpClient.get<DocumentUnsafe>(requestPath, {responseType: 'json'})
+        this.httpClient.get<DocUnsafe>(requestPath, {responseType: 'json'})
             .pipe(
                 tap(data => {
                     if (!data || typeof data !== 'object') {
@@ -65,9 +65,9 @@ export class DocService {
                         throw Error('无效数据');
                     }
                 }),
-                map((doc: DocumentUnsafe) => ({
+                map((doc: DocUnsafe) => ({
                     id: doc.id,
-                    contents: doc.contents === null ? null : htmlFromStringKnownToSatisfyTypeContract(doc.contents, '^')
+                    content: doc.content === null ? null : htmlFromStringKnownToSatisfyTypeContract(doc.content, '^')
                 })),
                 catchError((error: HttpErrorResponse) =>
                     error.status === 404 ? this.getFileNotFoundDoc(id) : this.getErrorDoc(id, error)
@@ -78,24 +78,24 @@ export class DocService {
         return subject.asObservable();
     }
 
-    private getFileNotFoundDoc(id: string): Observable<DocumentSafe> {
+    private getFileNotFoundDoc(id: string): Observable<DocSafe> {
         if (DocNotFoundId !== id) {
             this.logService.error(new Error(`文档'${id}'未找到`));
             return this.getDocument(DocNotFoundId);
         } else {
             return of({
                 id: DocNotFoundId,
-                contents: htmlEscape('文档未找到')
+                content: htmlEscape('文档未找到')
             });
         }
     }
 
-    private getErrorDoc(id: string, error: HttpErrorResponse): Observable<DocumentSafe> {
+    private getErrorDoc(id: string, error: HttpErrorResponse): Observable<DocSafe> {
         this.logService.error(new Error(`文档'${id}'获取错误：(${error.message})`));
         this.docMap.delete(id);
         return of({
             id: DocFetchErrorId,
-            contents: docFetchErrorContent(id),
+            content: docFetchErrorContent(id),
         });
     }
 

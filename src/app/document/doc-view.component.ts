@@ -7,9 +7,9 @@ import {EMPTY_HTML, unwrapHtmlForSink} from 'safevalues';
 import {LogService} from '../base/log.service';
 import {convertInnerHTML} from '../base/security.service';
 import {TocService} from '../base/toc.service';
-import {ElementsLoader} from 'app/custom-elements/elements-loader';
-import {DocumentSafe} from './document.model';
-import {DocNotFoundId, DocFetchErrorId} from './document.service';
+import {ElementLoadService} from '../element/element-load.service';
+import {DocSafe} from './doc.model';
+import {DocNotFoundId, DocFetchErrorId} from './doc.service';
 
 export const NO_ANIMATIONS = 'no-animations';
 
@@ -26,13 +26,13 @@ export class DocViewComponent implements OnDestroy {
 
     private void$ = of<void>(undefined);
     private onDestroy$ = new EventEmitter<void>();
-    private docContents$ = new EventEmitter<DocumentSafe>();
+    private docContents$ = new EventEmitter<DocSafe>();
 
     protected currViewContainer: HTMLElement = document.createElement('div');
     protected nextViewContainer: HTMLElement = document.createElement('div');
 
     @Input()
-    set doc(newDoc: DocumentSafe) {
+    set doc(newDoc: DocSafe) {
         // Ignore `undefined` values that could happen if the host component
         // does not initially specify a value for the `doc` input.
         if (newDoc) {
@@ -59,7 +59,7 @@ export class DocViewComponent implements OnDestroy {
     constructor(
         elementRef: ElementRef, private logService: LogService, private titleService: Title,
         private metaService: Meta, private tocService: TocService,
-        private elementsLoader: ElementsLoader) {
+        private elementLoadService: ElementLoadService) {
         this.hostElement = elementRef.nativeElement;
 
         // Security: the initialDocViewerContent comes from the prerendered DOM and is considered to be
@@ -104,7 +104,7 @@ export class DocViewComponent implements OnDestroy {
         }
 
         return () => {
-            this.tocService.reset();
+            this.tocService.resetTocItems();
             let title: string | null = '';
 
             // Only create ToC for docs with an `<h1>` heading.
@@ -115,7 +115,7 @@ export class DocViewComponent implements OnDestroy {
                 }
 
                 if (needsToc) {
-                    this.tocService.genToc(targetElem, docId);
+                    this.tocService.generateTocItems(targetElem, docId);
                 }
             }
 
@@ -126,23 +126,23 @@ export class DocViewComponent implements OnDestroy {
     /**
      * Add doc content to host element and build it out with embedded components.
      */
-    protected render(doc: DocumentSafe): Observable<void> {
+    protected render(doc: DocSafe): Observable<void> {
         let addTitleAndToc: () => void;
 
         this.setNoIndex(doc.id === DocNotFoundId || doc.id === DocFetchErrorId);
 
         return this.void$.pipe(
             tap(() => {
-                if (doc.contents === null) {
+                if (doc.content === null) {
                     this.nextViewContainer.textContent = '';
                 } else {
                     // Security: `doc.contents` is always authored by the documentation team
                     //           and is considered to be safe.
-                    this.nextViewContainer.innerHTML = unwrapHtmlForSink(doc.contents);
+                    this.nextViewContainer.innerHTML = unwrapHtmlForSink(doc.content);
                 }
             }),
             tap(() => addTitleAndToc = this.prepareTitleAndToc(this.nextViewContainer, doc.id)),
-            switchMap(() => this.elementsLoader.loadContainedCustomElements(this.nextViewContainer)),
+            switchMap(() => this.elementLoadService.loadElementComponentModules(this.nextViewContainer)),
             tap(() => this.docReady.emit()),
             switchMap(() => this.swapViews(addTitleAndToc)),
             tap(() => this.docRendered.emit()),
