@@ -151,7 +151,7 @@ export class LocationService {
     }
 
     /**
-     * 下次导航时，加载整个页面
+     * 下次导航需要加载整个页面
      */
     needToLoadFullPage(): void {
         this.isNeededToLoadFullPage = true;
