@@ -1,6 +1,6 @@
 import * as lunr from 'lunr';
 
-import {WebWorkerMessage} from '../base/worker.service';
+import {WebWorkerMessage} from '../base/web-worker.service';
 
 // 搜索状态
 export enum SearchState {

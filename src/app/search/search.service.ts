@@ -3,7 +3,7 @@ import {Injectable, NgZone} from '@angular/core';
 import {ConnectableObservable, Observable, race, ReplaySubject, timer} from 'rxjs';
 import {concatMap, first, publishReplay} from 'rxjs/operators';
 
-import {WebWorkerClient} from '../base/web-worker.service';
+import {WebWorkerService} from '../base/web-worker.service';
 import {SearchResults} from './search.model';
 
 /**
@@ -19,7 +19,7 @@ export class SearchService {
     private searchSubject = new ReplaySubject<string>(1);
 
     // WebWorker客户端
-    private webWorkerClient: WebWorkerClient;
+    private webWorkerService: WebWorkerService;
 
     /**
      * 构造函数，创建搜索服务
@@ -42,8 +42,8 @@ export class SearchService {
         ).pipe(
             concatMap(() => {
                 const worker = new Worker(new URL('./search.worker', import.meta.url), {type: 'module'});
-                this.webWorkerClient = WebWorkerClient.create(worker, this.ngZone);
-                return this.webWorkerClient.sendMessage<boolean>('load-index');
+                this.webWorkerService = WebWorkerService.create(worker, this.ngZone);
+                return this.webWorkerService.sendMessage<boolean>('load-index');
             }),
             publishReplay(1),
         );
@@ -60,7 +60,7 @@ export class SearchService {
      */
     searchIndex(queryText: string): Observable<SearchResults> {
         this.searchSubject.next(queryText);
-        return this.initialized.pipe(concatMap(() => this.webWorkerClient.sendMessage<SearchResults>('query-index', queryText)));
+        return this.initialized.pipe(concatMap(() => this.webWorkerService.sendMessage<SearchResults>('query-index', queryText)));
     }
 
 }

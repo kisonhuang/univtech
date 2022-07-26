@@ -20,7 +20,7 @@ export class SearchNoResultComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.searchResults = this.locationService.currentPath.pipe(switchMap(path => {
+        this.searchResults = this.locationService.currentPathObservable.pipe(switchMap(path => {
             const queryText = path.split(/\W+/).join(' ');
             return this.searchService.searchIndex(queryText);
         }));
