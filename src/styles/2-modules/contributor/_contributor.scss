@@ -1,6 +1,6 @@
 @use '../../mixins';
 
-aio-contributor-list {
+univ-contributor-list {
     .contributor-group {
         --columns: 2;
         display: grid;
@@ -13,7 +13,7 @@ aio-contributor-list {
     }
 }
 
-aio-contributor {
+univ-contributor {
     display: grid;
 
     .contributor-card {

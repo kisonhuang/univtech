@@ -10,7 +10,7 @@ $notificationHeight: 56px;
     overflow: hidden;
 }
 
-aio-notification {
+univ-notification {
     display: flex;
     position: relative;
     width: 100%;
@@ -76,7 +76,7 @@ aio-notification {
 
 // Here are all the hacks to make the content and sidebars the right height
 // when the notification is visible
-.aio-notification-show {
+.univ-notification-show {
     .toc-container {
         top: 76px + $notificationHeight;
     }
@@ -101,7 +101,7 @@ aio-notification {
 }
 
 @include mixins.marketing-pages {
-    &.aio-notification-show {
+    &.univ-notification-show {
         mat-sidenav-container.sidenav-container {
             .sidenav-content {
                 padding-top: $notificationHeight;
@@ -114,7 +114,7 @@ aio-notification {
 // this should be kept in sync with the animation durations in
 // - aio/src/app/layout/notification/notification.component.ts
 // - aio/src/app/app.component.ts : notificationDismissed()
-.aio-notification-animating {
+.univ-notification-animating {
     .sidenav-content {
         transition: padding-top 250ms ease;
     }

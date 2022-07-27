@@ -3,7 +3,7 @@
 
 /* API LIST STYLES */
 
-aio-api-list {
+univ-api-list {
     .api-filter {
         display: flex;
         margin: 0 auto;
@@ -14,7 +14,7 @@ aio-api-list {
         }
 
         /* API FILTER MENU */
-        aio-select {
+        univ-select {
             width: 200px;
 
             @media screen and (max-width: 600px) {
@@ -31,7 +31,7 @@ aio-api-list {
             }
         }
 
-        aio-select:first-child {
+        univ-select:first-child {
             .form-select-menu {
                 margin-left: 0;
             }

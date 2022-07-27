@@ -105,7 +105,7 @@ mat-toolbar.app-toolbar {
     }
 
     // TOP MENU
-    aio-top-menu {
+    univ-top-menu {
         ul {
             display: flex;
             padding: 0px;
@@ -154,7 +154,7 @@ mat-toolbar.app-toolbar {
     }
 
     // SEARCH BOX
-    aio-search-box.search-container {
+    univ-search-box.search-container {
         display: flex;
         justify-content: flex-end;
         align-items: center;
@@ -220,7 +220,7 @@ mat-toolbar.app-toolbar {
         }
     }
 
-    aio-theme-toggle {
+    univ-theme-toggle {
         @media screen and (min-width: 350px) {
             padding-right: 2px;
             margin-right: 2px;

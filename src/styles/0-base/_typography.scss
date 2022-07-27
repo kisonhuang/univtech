@@ -202,7 +202,7 @@ code {
 // We add the icon to all external links which are identified as absolute links (those that start with `http:` or https:`).
 // For more info see PR #36601.
 @include mixins.docs-pages {
-    aio-doc-viewer {
+    univ-doc-viewer {
         // The docs-viewer also contain links to GitHub (e.g. the "edit this page" icon) identified with
         // the `.github-links` class. We don't want to add the external link icon to these links.
         :not(.github-links) {

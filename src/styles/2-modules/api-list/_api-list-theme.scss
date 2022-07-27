@@ -5,7 +5,7 @@
 @mixin theme($theme) {
     $is-dark-theme: map.get($theme, is-dark);
 
-    aio-api-list {
+    univ-api-list {
         .api-filter {
             .form-search {
                 input {

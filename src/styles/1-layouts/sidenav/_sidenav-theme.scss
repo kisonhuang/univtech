@@ -19,8 +19,8 @@
         }
     }
 
-    aio-nav-menu {
-        aio-nav-item {
+    univ-nav-menu {
+        univ-nav-item {
             .vertical-menu-item {
                 color: if($is-dark-theme, constants.$offwhite, constants.$darkgray);
 

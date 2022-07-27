@@ -4,7 +4,7 @@
 @mixin theme($theme) {
     $is-dark-theme: map.get($theme, is-dark);
 
-    aio-resource-list {
+    univ-resource-list {
         .subcategory-title {
             background-color: if($is-dark-theme, constants.$deepgray, constants.$mist);
         }

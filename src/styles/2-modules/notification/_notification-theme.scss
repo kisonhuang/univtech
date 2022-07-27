@@ -1,7 +1,7 @@
 @use '../../constants';
 
 @mixin theme($theme) {
-    aio-notification {
+    univ-notification {
         background: constants.$darkgray;
 
         .close-button {

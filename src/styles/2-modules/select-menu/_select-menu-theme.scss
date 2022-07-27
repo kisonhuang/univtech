@@ -6,7 +6,7 @@
     $background: map.get($theme, background);
     $is-dark-theme: map.get($theme, is-dark);
 
-    aio-select {
+    univ-select {
         .form-select-button {
             background: if($is-dark-theme, constants.$darkgray, constants.$white);
             box-shadow: 0 2px 2px rgba(constants.$black, 0.24), 0 0 2px rgba(constants.$black, 0.12);

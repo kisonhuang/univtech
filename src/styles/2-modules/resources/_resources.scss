@@ -1,7 +1,7 @@
 @use '../../constants';
 @use '../../mixins';
 
-aio-resource-list {
+univ-resource-list {
     .showcase {
         transition: box-shadow 0.28s cubic-bezier(0.4, 0, 0.2, 1);
         box-shadow: 0 1px 4px 0 rgba(constants.$black, 0.37);

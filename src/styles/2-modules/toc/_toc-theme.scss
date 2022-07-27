@@ -7,7 +7,7 @@
     $foreground: map.get($theme, foreground);
     $is-dark-theme: map.get($theme, is-dark);
 
-    aio-toc {
+    univ-toc {
         .toc-inner {
             .toc-heading {
                 &.secondary {

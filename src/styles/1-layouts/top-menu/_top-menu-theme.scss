@@ -43,7 +43,7 @@
         }
 
         // TOP MENU
-        aio-top-menu {
+        univ-top-menu {
             ul {
                 li {
                     a.nav-link {
@@ -79,7 +79,7 @@
         }
 
         // SEARCH BOX
-        aio-search-box.search-container {
+        univ-search-box.search-container {
             input {
                 color: constants.$darkgray;
                 background-color: constants.$white;
@@ -90,7 +90,7 @@
             }
         }
 
-        aio-theme-toggle {
+        univ-theme-toggle {
             @media screen and (min-width: 351px) {
                 border-right: 1px solid constants.$white;
             }

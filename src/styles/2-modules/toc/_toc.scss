@@ -27,7 +27,7 @@ $tocMarkerSize: 6;
     overflow-x: hidden;
 }
 
-aio-toc {
+univ-toc {
     .toc-inner {
         @include mixins.font-size(13);
         overflow-y: visible;
