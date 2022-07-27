@@ -11,31 +11,31 @@ $layer-5: 5;
 
 // 颜色
 $cyan: #39d0ff;
-$powderblue: #bae0ff;
-$lightblue: #7fc9ff;
+$powder-blue: #bae0ff;
+$light-blue: #7fc9ff;
 $blue: #1976D2;
-$warmblue: #7491ff;
-$coldblue: #8ccade;
-$darkblue: #1669bb;
-$accentblue: #1E88E5;
-$brightred: #DD0031;
-$darkred: #C3002F;
+$warm-blue: #7491ff;
+$cold-blue: #8ccade;
+$dark-blue: #1669bb;
+$accent-blue: #1E88E5;
+$bright-red: #DD0031;
+$dark-red: #C3002F;
 $white: #FFFFFF;
-$offwhite: #FAFAFA;
+$off-white: #FAFAFA;
 $tangerine: #DDA302;
-$darkgoldenrod: #C3A300;
-$backgroundgray: #F1F1F1;
-$superlightgray: #F2F2F2;
-$lightgray: #DBDBDB;
-$lightboxgray: #EBEBEB;
+$dark-golden-rod: #C3A300;
+$back-ground-gray: #F1F1F1;
+$super-light-gray: #F2F2F2;
+$light-gray: #DBDBDB;
+$light-box-gray: #EBEBEB;
 $mist: #ECEFF1;
-$mediumgray: #6E6E6E;
-$darkgray: #444444;
-$deepgray: #333333;
+$medium-gray: #6E6E6E;
+$dark-gray: #444444;
+$deep-gray: #333333;
 $black: #0A1014;
 $orange: #FF9800;
-$darkorange: #940;
-$anti-pattern: $brightred;
+$dark-orange: #940;
+$anti-pattern: $bright-red;
 
 // 代码颜色
 $amber-200: #AA3000;
@@ -55,22 +55,22 @@ $blue-grey-600: #546E7A;
 $blue-grey-700: #455A64;
 $blue-grey-800: #37474F;
 $blue-grey-900: #263238;
-$codegreen: #17ff0b;
+$code-green: #17ff0b;
 $green-500: #4CAF50;
 $green-800: #2E7D32;
 $light-green-600: #7CB342;
 $pink-600: #D81B60;
 $purple-600: #8E24AA;
 $teal-500: #009688;
-$lightgrey: #F5F6F7;
+$light-grey: #F5F6F7;
 
 // 状态颜色
 $focus-outline-ondark: rgba($white, 0.8);
 $focus-outline-onlight: $accentblue;
 
 // 渐变色
-$bluegradient: linear-gradient(145deg, $blue-900, $blue-400);
-$redgradient: linear-gradient(145deg, $darkred, $brightred);
+$blue-gradient: linear-gradient(145deg, $blue-900, $blue-400);
+$red-gradient: linear-gradient(145deg, $darkred, $brightred);
 
 // 其他
 $small-breakpoint-width: 840px;
