@@ -65,12 +65,12 @@ $teal-500: #009688;
 $light-grey: #F5F6F7;
 
 // 状态颜色
-$focus-outline-ondark: rgba($white, 0.8);
-$focus-outline-onlight: $accentblue;
+$focus-outline-on-dark: rgba($white, 0.8);
+$focus-outline-on-light: $accent-blue;
 
 // 渐变色
 $blue-gradient: linear-gradient(145deg, $blue-900, $blue-400);
-$red-gradient: linear-gradient(145deg, $darkred, $brightred);
+$red-gradient: linear-gradient(145deg, $dark-red, $bright-red);
 
 // 其他
 $small-breakpoint-width: 840px;
