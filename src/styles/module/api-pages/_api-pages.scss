@@ -134,7 +134,7 @@
         }
 
         // This is overriding a style here:
-        // https://github.com/angular/angular/blob/95993e1/aio/src/styles/2-modules/_table.scss#L58-L62
+        // https://github.com/angular/angular/blob/95993e1/aio/src/styles/module/_table.scss#L58-L62
         tbody > tr > td tr td:first-child {
             @media screen and (max-width: 480px) {
                 background-color: inherit;

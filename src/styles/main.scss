@@ -1,7 +1,7 @@
 // import directories
-@use './0-base' as base;
-@use './1-layouts' as layouts;
-@use './2-modules' as modules;
+@use './base' as base;
+@use './layout' as layouts;
+@use './module' as modules;
 
 // import print styles
 @use './print';
