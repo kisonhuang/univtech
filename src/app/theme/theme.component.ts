@@ -1,7 +1,7 @@
 import {DOCUMENT} from '@angular/common';
 import {Component, Inject} from '@angular/core';
 
-import {LocalStorageToken} from '../base/storage.service';
+import {localStorageToken} from '../base/storage.service';
 
 export const StorageKeyTheme = 'storage-key-theme';
 
@@ -14,7 +14,7 @@ export class ThemeComponent {
     isDark = false;
 
     constructor(@Inject(DOCUMENT) private document: Document,
-                @Inject(LocalStorageToken) private storage: Storage) {
+                @Inject(localStorageToken) private storage: Storage) {
         this.initializeThemeFromPreferences();
     }
 

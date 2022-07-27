@@ -1,6 +1,6 @@
 import {Component, Inject} from '@angular/core';
 
-import {LocalStorageToken} from '../base/storage.service';
+import {localStorageToken} from '../base/storage.service';
 
 export const StorageKeyAcceptCookie = 'sk-accept-cookie';
 
@@ -12,7 +12,7 @@ export class CookiePopupComponent {
 
     hasAcceptedCookie: boolean;
 
-    constructor(@Inject(LocalStorageToken) private storage: Storage) {
+    constructor(@Inject(localStorageToken) private storage: Storage) {
         this.hasAcceptedCookie = this.storage.getItem(StorageKeyAcceptCookie) === 'true';
     }
 
