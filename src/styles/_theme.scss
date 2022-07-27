@@ -1,9 +1,9 @@
 @use 'base/typography-theme';
-@use 'layout/theme' as layout-themes;
-@use 'module/theme' as module-themes;
+@use 'layout/theme' as layout-theme;
+@use 'module/theme' as module-theme;
 
 @mixin theme($theme) {
     @include typography-theme.theme($theme);
-    @include layout-themes.theme($theme);
-    @include module-themes.theme($theme);
+    @include layout-theme.theme($theme);
+    @include module-theme.theme($theme);
 }
