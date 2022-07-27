@@ -1,15 +1,15 @@
-// TYPOGRAPHY
-$main-font: "Roboto", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+// 字体
+$main-font: "Roboto", "Helvetica Neue Light", "Helvetica Neue", "Helvetica", "Arial", "Lucida Grande", "sans-serif";
 $code-font: "Roboto Mono", monospace;
 
-// Z-LAYER
+// Z层
 $layer-1: 1;
 $layer-2: 2;
 $layer-3: 3;
 $layer-4: 4;
 $layer-5: 5;
 
-// COLOR PALETTE
+// 颜色
 $cyan: #39d0ff;
 $powderblue: #bae0ff;
 $lightblue: #7fc9ff;
@@ -37,7 +37,7 @@ $orange: #FF9800;
 $darkorange: #940;
 $anti-pattern: $brightred;
 
-// API & CODE COLORS
+// 代码颜色
 $amber-200: #AA3000;
 $amber-700: #FFA000;
 $blue-400: #42A5F5;
@@ -64,79 +64,15 @@ $purple-600: #8E24AA;
 $teal-500: #009688;
 $lightgrey: #F5F6F7;
 
-// STATE COLORS
+// 状态颜色
 $focus-outline-ondark: rgba($white, 0.8);
 $focus-outline-onlight: $accentblue;
 
-// GRADIENTS
+// 渐变色
 $bluegradient: linear-gradient(145deg, $blue-900, $blue-400);
 $redgradient: linear-gradient(145deg, $darkred, $brightred);
 
-// API LABEL COLOR AND SYMBOLS MAP
-$api-symbols: (
-    all: (
-        content: ' ',
-        background: $white
-    ),
-    class: (
-        content: 'C',
-        background: $blue-500
-    ),
-    const: (
-        content: 'K',
-        background: $mediumgray
-    ),
-    decorator: (
-        content: '@',
-        background: $blue-800
-    ),
-    directive: (
-        content: 'D',
-        background: $pink-600
-    ),
-    enum: (
-        content: 'E',
-        background: $amber-700
-    ),
-    function: (
-        content: 'F',
-        background: $green-500
-    ),
-    interface: (
-        content: 'I',
-        background: $teal-500
-    ),
-    let: (
-        content: 'K',
-        background: $mediumgray
-    ),
-    ngmodule: (
-        content: 'M',
-        background: $darkorange
-    ),
-    package: (
-        content: 'Pk',
-        background: $purple-600
-    ),
-    pipe: (
-        content: 'P',
-        background: $blue-grey-600
-    ),
-    element: (
-        content: 'El',
-        background: $amber-200
-    ),
-    type-alias: (
-        content: 'T',
-        background: $light-green-600
-    ),
-    var: (
-        content: 'K',
-        background: $mediumgray
-    ),
-);
-
-// OTHER
+// 其他
 $small-breakpoint-width: 840px;
-$phone-breakpoint: 480px;
-$tablet-breakpoint: 800px;
+$phone-breakpoint-width: 480px;
+$tablet-breakpoint-width: 800px;
