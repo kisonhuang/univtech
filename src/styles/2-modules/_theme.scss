@@ -35,7 +35,7 @@
     @include card-theme.theme($theme);
     @include code-theme.theme($theme);
     @include contributor-theme.theme($theme);
-    @include cookies-popup-theme.theme($theme);
+    @include cookie-popup-theme.theme($theme);
     @include deploy-theme.theme($theme);
     @include details-theme.theme($theme);
     @include errors-theme.theme($theme);
