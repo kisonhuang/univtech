@@ -1,7 +1,9 @@
 import {Component, ElementRef, EventEmitter, Input, OnDestroy, Output} from '@angular/core';
 import {Meta, Title} from '@angular/platform-browser';
+
 import {asapScheduler, Observable, of, timer} from 'rxjs';
 import {catchError, observeOn, switchMap, takeUntil, tap} from 'rxjs/operators';
+
 import {EMPTY_HTML, unwrapHtmlForSink} from 'safevalues';
 
 import {LogService} from '../base/log.service';
@@ -9,34 +11,37 @@ import {convertInnerHTML} from '../base/security.service';
 import {TocService} from '../base/toc.service';
 import {ElementLoadService} from '../element/element-load.service';
 import {DocSafe} from './doc.model';
-import {DocNotFoundId, DocFetchErrorId} from './doc.service';
+import {docNotFoundId, docErrorId} from './doc.service';
 
-export const NO_ANIMATIONS = 'no-animations';
+export const noAnimation = 'no-animations';
 
-const initialDocViewerElement = document.querySelector('aio-doc-viewer');
+const initialDocViewElement = document.querySelector('univ-doc-view');
 
-const initialDocViewerContent = initialDocViewerElement ? convertInnerHTML(initialDocViewerElement) : EMPTY_HTML;
+const initialDocViewContent = initialDocViewElement ? convertInnerHTML(initialDocViewElement) : EMPTY_HTML;
 
 @Component({
-    selector: 'univ-doc-viewer',
+    selector: 'univ-doc-view',
     template: ''
 })
 export class DocViewComponent implements OnDestroy {
+
     private hostElement: HTMLElement;
 
-    private void$ = of<void>(undefined);
-    private onDestroy$ = new EventEmitter<void>();
-    private docContents$ = new EventEmitter<DocSafe>();
+    private voidObservable = of<void>(undefined);
 
-    protected currViewContainer: HTMLElement = document.createElement('div');
-    protected nextViewContainer: HTMLElement = document.createElement('div');
+    private destroyEmitter = new EventEmitter<void>();
 
-    @Input()
-    set doc(newDoc: DocSafe) {
+    private docContentEmitter = new EventEmitter<DocSafe>();
+
+    protected currentDocViewDivElement: HTMLElement = document.createElement('div');
+
+    protected nextDocViewDivElement: HTMLElement = document.createElement('div');
+
+    @Input() set doc(newDoc: DocSafe) {
         // Ignore `undefined` values that could happen if the host component
         // does not initially specify a value for the `doc` input.
         if (newDoc) {
-            this.docContents$.emit(newDoc);
+            this.docContentEmitter.emit(newDoc);
         }
     }
 
@@ -64,23 +69,23 @@ export class DocViewComponent implements OnDestroy {
 
         // Security: the initialDocViewerContent comes from the prerendered DOM and is considered to be
         // secure
-        this.hostElement.innerHTML = unwrapHtmlForSink(initialDocViewerContent);
+        this.hostElement.innerHTML = unwrapHtmlForSink(initialDocViewContent);
 
         if (this.hostElement.firstElementChild) {
-            this.currViewContainer = this.hostElement.firstElementChild as HTMLElement;
+            this.currentDocViewDivElement = this.hostElement.firstElementChild as HTMLElement;
         }
 
-        this.docContents$
+        this.docContentEmitter
             .pipe(
                 observeOn(asapScheduler),
                 switchMap(newDoc => this.render(newDoc)),
-                takeUntil(this.onDestroy$),
+                takeUntil(this.destroyEmitter),
             )
             .subscribe();
     }
 
     ngOnDestroy() {
-        this.onDestroy$.emit();
+        this.destroyEmitter.emit();
     }
 
     /**
@@ -129,20 +134,20 @@ export class DocViewComponent implements OnDestroy {
     protected render(doc: DocSafe): Observable<void> {
         let addTitleAndToc: () => void;
 
-        this.setNoIndex(doc.id === DocNotFoundId || doc.id === DocFetchErrorId);
+        this.setNoIndex(doc.id === docNotFoundId || doc.id === docErrorId);
 
-        return this.void$.pipe(
+        return this.voidObservable.pipe(
             tap(() => {
                 if (doc.content === null) {
-                    this.nextViewContainer.textContent = '';
+                    this.nextDocViewDivElement.textContent = '';
                 } else {
                     // Security: `doc.contents` is always authored by the documentation team
                     //           and is considered to be safe.
-                    this.nextViewContainer.innerHTML = unwrapHtmlForSink(doc.content);
+                    this.nextDocViewDivElement.innerHTML = unwrapHtmlForSink(doc.content);
                 }
             }),
-            tap(() => addTitleAndToc = this.prepareTitleAndToc(this.nextViewContainer, doc.id)),
-            switchMap(() => this.elementLoadService.loadElementComponentModules(this.nextViewContainer)),
+            tap(() => addTitleAndToc = this.prepareTitleAndToc(this.nextDocViewDivElement, doc.id)),
+            switchMap(() => this.elementLoadService.loadElementComponentModules(this.nextDocViewDivElement)),
             tap(() => this.docReady.emit()),
             switchMap(() => this.swapViews(addTitleAndToc)),
             tap(() => this.docRendered.emit()),
@@ -150,7 +155,7 @@ export class DocViewComponent implements OnDestroy {
                 const errorMessage = `${(err instanceof Error) ? err.stack : err}`;
                 this.logService.error(
                     new Error(`[DocViewer] Error preparing document '${doc.id}': ${errorMessage}`));
-                this.nextViewContainer.textContent = '';
+                this.nextDocViewDivElement.textContent = '';
                 this.setNoIndex(true);
 
                 // TODO(gkalpak): Remove this once gathering debug info is no longer needed.
@@ -160,7 +165,7 @@ export class DocViewComponent implements OnDestroy {
                     printSwDebugInfo();
                 }
 
-                return this.void$;
+                return this.voidObservable;
             }),
         );
     }
@@ -177,11 +182,11 @@ export class DocViewComponent implements OnDestroy {
     }
 
     /**
-     * Swap the views, removing `currViewContainer` and inserting `nextViewContainer`.
+     * Swap the views, removing `currentDocViewDivElement` and inserting `nextDocViewDivElement`.
      * (At this point all content should be ready, including having loaded and instantiated embedded
      *  components.)
      *
-     * Optionally, run a callback as soon as `nextViewContainer` has been inserted, but before the
+     * Optionally, run a callback as soon as `nextDocViewDivElement` has been inserted, but before the
      * entering animation has been completed. This is useful for work that needs to be done as soon as
      * the element has been attached to the DOM.
      */
@@ -216,11 +221,11 @@ export class DocViewComponent implements OnDestroy {
         const animateProp =
             (elem: HTMLElement, prop: StringValueCSSStyleDeclaration, from: string, to: string,
              duration = 200) => {
-                const animationsDisabled = this.hostElement.classList.contains(NO_ANIMATIONS);
+                const animationsDisabled = this.hostElement.classList.contains(noAnimation);
                 elem.style.transition = '';
                 return animationsDisabled ?
-                    this.void$.pipe(tap(() => elem.style[prop] = to)) :
-                    this.void$.pipe(
+                    this.voidObservable.pipe(tap(() => elem.style[prop] = to)) :
+                    this.voidObservable.pipe(
                         // In order to ensure that the `from` value will be applied immediately (i.e.
                         // without transition) and that the `to` value will be affected by the
                         // `transition` style, we need to ensure an animation frame has passed between
@@ -232,37 +237,37 @@ export class DocViewComponent implements OnDestroy {
                         switchMap(() => raf$),
                         tap(() => elem.style[prop] = to),
                         switchMap(() => timer(getActualDuration(elem))),
-                        switchMap(() => this.void$),
+                        switchMap(() => this.voidObservable),
                     );
             };
 
         const animateLeave = (elem: HTMLElement) => animateProp(elem, 'opacity', '1', '0.1');
         const animateEnter = (elem: HTMLElement) => animateProp(elem, 'opacity', '0.1', '1');
 
-        let done$ = this.void$;
+        let done$ = this.voidObservable;
 
-        if (this.currViewContainer.parentElement) {
+        if (this.currentDocViewDivElement.parentElement) {
             done$ = done$.pipe(
                 // Remove the current view from the viewer.
-                switchMap(() => animateLeave(this.currViewContainer)),
-                tap(() => (this.currViewContainer.parentElement as HTMLElement)
-                    .removeChild(this.currViewContainer)),
+                switchMap(() => animateLeave(this.currentDocViewDivElement)),
+                tap(() => (this.currentDocViewDivElement.parentElement as HTMLElement)
+                    .removeChild(this.currentDocViewDivElement)),
                 tap(() => this.docRemoved.emit()),
             );
         }
 
         return done$.pipe(
             // Insert the next view into the viewer.
-            tap(() => this.hostElement.appendChild(this.nextViewContainer)),
+            tap(() => this.hostElement.appendChild(this.nextDocViewDivElement)),
             tap(() => onInsertedCb()),
             tap(() => this.docInserted.emit()),
-            switchMap(() => animateEnter(this.nextViewContainer)),
+            switchMap(() => animateEnter(this.nextDocViewDivElement)),
             // Update the view references and clean up unused nodes.
             tap(() => {
-                const prevViewContainer = this.currViewContainer;
-                this.currViewContainer = this.nextViewContainer;
-                this.nextViewContainer = prevViewContainer;
-                this.nextViewContainer.textContent = '';  // Empty to release memory.
+                const prevViewContainer = this.currentDocViewDivElement;
+                this.currentDocViewDivElement = this.nextDocViewDivElement;
+                this.nextDocViewDivElement = prevViewContainer;
+                this.nextDocViewDivElement.textContent = '';  // Empty to release memory.
             }),
         );
     }
