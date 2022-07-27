@@ -21,7 +21,7 @@ The `.scss` files are organized in the following sub-directories:
 - [theme/](./theme): Entry-points for the different themes available in the application (currently `light` and `dark`).
 
 There are also some top-level files in `[src/styles/](.):
-- [_app-theme.scss](./_app-theme.scss): Defines a `theme()` Sass mixin for creating an application theme.
+- [_theme.scss](./_theme.scss): Defines a `theme()` Sass mixin for creating an application theme.
 - [_constants.scss](./_constants.scss): Defines several constants to be used throughout the styles.
 - [_mixins.scss](./_mixins.scss): Defines Sass mixins to be used throughout the styles.
 - [_print.scss](./_print.scss): Contains styles to be applied when printing.

@@ -1,4 +1,4 @@
-@use '../app-theme';
+@use '../theme';
 @use 'node_modules/@angular/material' as mat;
 
 $ng-io-primary: mat.define-palette(mat.$blue-palette, 700, 600, 800);
@@ -7,4 +7,4 @@ $ng-io-warn: mat.define-palette(mat.$red-palette);
 $ng-io-theme: mat.define-light-theme($ng-io-primary, $ng-io-accent, $ng-io-warn);
 
 @include mat.all-component-themes($ng-io-theme);
-@include app-theme.theme($ng-io-theme);
+@include theme.theme($ng-io-theme);
